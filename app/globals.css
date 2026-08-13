@@ -1,0 +1,28 @@
+@import "../styles/theme.css";
+@import "../styles/hud.css";
+
+/*
+ * Adamantite has one theme — dark-only, no `prefers-color-scheme` branching.
+ * ux-patterns.md §2: "State that in globals.css so nobody half-builds one."
+ */
+:root {
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-ada-bg);
+  color: var(--color-ada-text);
+  font-family: var(--font-ui);
+}
