@@ -41,6 +41,9 @@ export default defineConfig({
             'lib/server/**/*.{test,spec}.ts',
             'tests/shared/**/*.{test,spec}.ts',
             'tests/server/**/*.{test,spec}.ts',
+            // Integration guards (T-011) read the filesystem and the built output, so they
+            // belong to the node project, not jsdom.
+            'tests/guards/**/*.{test,spec}.ts',
           ],
         },
       },
@@ -57,6 +60,12 @@ export default defineConfig({
             'components/**/*.{test,spec}.tsx',
             'app/**/*.{test,spec}.tsx',
             'tests/client/**/*.{test,spec}.tsx',
+            // The taskboard places every client-side suite under tests/components/**
+            // (T-004, T-007, T-009, T-010). Without this glob those suites are collected by
+            // neither project and pass silently by never running at all. `.ts` is included
+            // alongside `.tsx` so non-JSX client tests — the polling hook, query keys — are
+            // picked up too.
+            'tests/components/**/*.{test,spec}.{ts,tsx}',
           ],
         },
       },

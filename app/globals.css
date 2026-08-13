@@ -25,4 +25,84 @@ body {
   background: var(--color-ada-bg);
   color: var(--color-ada-text);
   font-family: var(--font-ui);
+  font-feature-settings:
+    'cv05' 1,
+    'ss03' 1,
+    'tnum' 1;
+}
+
+/* ── The wordmark — ux-patterns.md §4.2 / ADR-07, reproduced verbatim ──────────────────── */
+.ada-wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: transparent;
+  -webkit-text-stroke: 1.25px var(--color-ada-cyan-300);
+  background-image: linear-gradient(178deg, #1b4fa8 0%, #1e90ff 46%, #0b2c63 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: var(--glow-text);
+  paint-order: stroke fill;
+}
+@supports not (-webkit-text-stroke: 1px red) {
+  .ada-wordmark {
+    -webkit-text-stroke: 0;
+    color: var(--color-ada-blue-300);
+    background: none;
+    text-shadow: none;
+  }
+}
+
+/* ── Keyframes shared by components/ui and components/background ──────────────────────── */
+@keyframes ada-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ada-skeleton-breathe {
+  0%,
+  100% {
+    opacity: 0.04;
+  }
+  50% {
+    opacity: 0.09;
+  }
+}
+
+@keyframes ada-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ada-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes ada-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ux-patterns.md §12.1: the skeleton mosaic is static at 0.06 opacity under reduced motion,
+ * not merely a fast-forwarded version of the breathing loop. */
+@media (prefers-reduced-motion: reduce) {
+  .ada-skeleton {
+    animation: none !important;
+    opacity: 0.06 !important;
+  }
 }

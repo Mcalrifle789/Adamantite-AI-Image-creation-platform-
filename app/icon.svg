@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-labelledby="t">
+<title id="t">Adamantite</title>
+<rect width="32" height="32" fill="#000208"/>
+<polygon points="15,6 17,6 13,27 8,27 6,25" fill="#1E90FF"/>
+<polygon points="17,6 15,6 19,27 24,27 26,25" fill="#1E90FF"/>
+<rect x="11" y="19" width="10" height="3" fill="#1E90FF"/>
+</svg>
