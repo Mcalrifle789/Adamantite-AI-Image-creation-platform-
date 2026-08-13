@@ -1,34 +1,10 @@
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono, Playfair_Display } from 'next/font/google';
 
 import { RainField } from '@/components/background/RainField';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ToastRegion } from '@/components/ui/Toast';
 
 import './globals.css';
-
-// T-001 wired the fonts; kept as-is per the technical_direction ("extend, do not rewrite the
-// font wiring").
-const playfairDisplay = Playfair_Display({
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['500', '600'],
-  variable: '--font-display',
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['400', '500', '600'],
-  variable: '--font-ui',
-});
-
-const jetBrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  display: 'swap',
-  weight: ['400', '500'],
-  variable: '--font-mono',
-});
 
 export const metadata: Metadata = {
   title: 'Adamantite Agent',
@@ -49,10 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${playfairDisplay.variable} ${inter.variable} ${jetBrainsMono.variable}`}
-    >
+    <html lang="en">
       <body>
         <RainField />
         <QueryProvider>

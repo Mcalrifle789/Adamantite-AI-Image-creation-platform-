@@ -42,9 +42,9 @@
   --color-ada-line-quiet:  rgb(143 163 191 / 0.10);  /* dividers          */
 
   /* ─── Type ──────────────────────────────────────────────────────── */
-  --font-display: "Playfair Display", "Iowan Old Style", Georgia, serif;
-  --font-ui:      "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono:    "JetBrains Mono", ui-monospace, "Cascadia Mono", monospace;
+  --font-display: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --font-ui:      system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:    ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
 
   --text-2xs:    0.6875rem;  --text-2xs--line-height: 1rem;      /* 11 — mono labels only */
   --text-xs:     0.75rem;    --text-xs--line-height:  1.125rem;  /* 12 */

@@ -27,15 +27,15 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 // (which measures 3.0:1 on this fill and fails AA). There is no third variant of this button.
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    'bg-ada-blue-500 text-ada-text-invert border border-transparent shadow-[var(--glow-2)] hover:bg-ada-blue-600 active:bg-ada-blue-600',
+    'bg-[rgb(30_144_255_/_0.82)] text-ada-text-invert border border-[rgb(124_227_255_/_0.38)] shadow-[0_10px_30px_-14px_rgb(30_144_255_/_0.8),inset_0_1px_0_rgb(255_255_255_/_0.18)] hover:bg-[rgb(79_168_255_/_0.9)] active:bg-[rgb(10_111_212_/_0.88)]',
   outline:
-    'bg-ada-surface-2 text-ada-text border border-ada-blue-500 hover:bg-ada-surface-3',
+    'bg-[rgb(16_24_39_/_0.46)] text-ada-text border border-[rgb(79_168_255_/_0.52)] shadow-[0_10px_26px_-18px_rgb(30_144_255_/_0.7),inset_0_1px_0_rgb(255_255_255_/_0.08)] hover:bg-[rgb(24_32_47_/_0.62)]',
   secondary:
-    'bg-ada-surface-2 text-ada-text border border-[color:var(--color-ada-line)] hover:border-[color:var(--color-ada-line-strong)] hover:bg-ada-surface-3',
+    'bg-[rgb(16_24_39_/_0.42)] text-ada-text border border-[color:var(--color-ada-line)] shadow-[0_8px_24px_-18px_rgb(124_227_255_/_0.48),inset_0_1px_0_rgb(255_255_255_/_0.07)] hover:border-[color:var(--color-ada-line-strong)] hover:bg-[rgb(24_32_47_/_0.6)]',
   ghost:
-    'bg-transparent text-ada-text-muted border border-transparent hover:text-ada-text hover:bg-ada-surface-2',
+    'bg-[rgb(16_24_39_/_0.16)] text-ada-text-muted border border-transparent shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] hover:text-ada-text hover:bg-[rgb(16_24_39_/_0.42)]',
   danger:
-    'bg-ada-surface-2 text-ada-danger border border-[color:rgb(251_113_133_/_0.45)] hover:shadow-[var(--glow-danger)]',
+    'bg-[rgb(16_24_39_/_0.42)] text-ada-danger border border-[color:rgb(251_113_133_/_0.45)] shadow-[0_8px_24px_-18px_rgb(251_113_133_/_0.55),inset_0_1px_0_rgb(255_255_255_/_0.07)] hover:shadow-[var(--glow-danger)]',
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
@@ -46,7 +46,7 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
 
 const BASE_CLASSES =
   'relative inline-flex items-center justify-center whitespace-nowrap font-medium ' +
-  'transition-[background-color,border-color,box-shadow,color] duration-[var(--dur-1)] ease-[var(--ease-out)] ' +
+  'backdrop-blur-md backdrop-saturate-150 transition-[background-color,border-color,box-shadow,color,transform] duration-[var(--dur-2)] ease-[var(--ease-out)] hover:-translate-y-0.5 active:translate-y-0 ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ada-cyan-300 ' +
   'disabled:opacity-45 disabled:cursor-not-allowed disabled:shadow-none';
 
