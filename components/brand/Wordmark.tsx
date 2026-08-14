@@ -32,11 +32,13 @@ export function Wordmark({ size = 'header', withAgent = false, as, className }: 
       Adamantite
       {withAgent ? (
         <>
-          {/* Elegant lighter-weight lockup line — soft cyan, wide tracking, no glow (kept
-           * subordinate to the "Adamantite" mark above). */}
+          <br />
+          {/* ADR-06 refusal 1: no text-shadow glow below 24px. At the minimum hero clamp
+           * (3rem/48px) 0.28em is ~13px, so the "Agent" line never gets the wordmark's glow
+           * treatment — it is a plain solid-colour italic, unlike the "Adamantite" line above. */}
           <span
             aria-hidden="true"
-            className="-mt-[0.12em] block font-display text-[0.24em] font-light uppercase tracking-[0.42em] text-ada-cyan-300/85"
+            className="block font-display text-[0.28em] font-medium italic tracking-[0.06em] text-ada-blue-300"
           >
             Agent
           </span>

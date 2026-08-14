@@ -2,8 +2,9 @@ import Link from 'next/link';
 
 import { MODELS } from '@/config/models';
 import { Wordmark } from '@/components/brand/Wordmark';
+import { CatalogueExplorer } from '@/components/landing/CatalogueExplorer';
 import { ModelSelector } from '@/components/landing/ModelSelector';
-import { formatTier, type PublicModelCard } from '@/components/model/brandAssets';
+import type { PublicModelCard } from '@/components/model/brandAssets';
 
 const allModels: PublicModelCard[] = MODELS.map((model) => ({
   id: model.id,
@@ -64,34 +65,7 @@ export default function Home() {
 
       {/* ── Full catalogue — target of the "More models" chevron ───────── */}
       <section id="full-catalogue" className="mx-auto mt-24 w-full max-w-[80rem] scroll-mt-8">
-        <div className="glass-panel p-6 sm:p-8">
-          <div className="mb-6 flex items-end justify-between">
-            <div>
-              <h2 className="text-xl font-semibold tracking-tight text-white">Full catalogue</h2>
-              <p className="mt-1 text-sm text-ada-text-muted">Every model available in your workspace.</p>
-            </div>
-            <span className="font-mono text-xs text-ada-text-muted">{allModels.length} models</span>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {allModels.map((model) => (
-              <Link
-                key={model.id}
-                href={`/workspace/demo?model=${encodeURIComponent(model.id)}`}
-                className="group flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[rgb(12_18_34_/_0.5)] px-4 py-3.5 transition duration-[var(--dur-2)] ease-[var(--ease-out)] hover:-translate-y-0.5 hover:border-ada-cyan-300/50 hover:bg-[rgb(16_24_44_/_0.7)] hover:shadow-[0_0_30px_-12px_rgb(40_170_255_/_0.8)]"
-              >
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-ada-text">{model.displayName}</div>
-                  <div className="mt-0.5 text-xs uppercase tracking-wide text-ada-cyan-200/55">
-                    {formatTier(model.tier)} · {model.kind}
-                  </div>
-                </div>
-                <span aria-hidden className="text-ada-cyan-200/40 transition group-hover:translate-x-0.5 group-hover:text-ada-cyan-200">
-                  →
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
+        <CatalogueExplorer models={allModels} />
       </section>
     </main>
   );

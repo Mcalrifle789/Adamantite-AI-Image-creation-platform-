@@ -8,9 +8,10 @@ import type { WalletPlan } from './wallet';
 interface CheckoutButtonProps {
   plan: WalletPlan;
   featured?: boolean;
+  period?: 'monthly' | 'annual';
 }
 
-export function CheckoutButton({ plan, featured = false }: CheckoutButtonProps) {
+export function CheckoutButton({ plan, featured = false, period = 'monthly' }: CheckoutButtonProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +23,7 @@ export function CheckoutButton({ plan, featured = false }: CheckoutButtonProps) 
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ planId: plan.id }),
+        body: JSON.stringify({ planId: plan.id, period }),
       });
       const payload = (await response.json()) as { url?: string; error?: { message?: string } };
 

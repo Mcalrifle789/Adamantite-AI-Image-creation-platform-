@@ -11,7 +11,11 @@ export const dynamic = 'force-dynamic';
 
 const requestSchema = z.object({
   planId: z.enum(['port', 'standard', 'pro', 'max']),
+  period: z.enum(['monthly', 'annual']).default('monthly'),
 });
+
+// Annual billing charges 10 months up front (2 months free).
+const ANNUAL_MONTHS_CHARGED = 10;
 
 export async function POST(request: Request) {
   const parsed = requestSchema.safeParse(await request.json().catch(() => null));
@@ -23,12 +27,14 @@ export async function POST(request: Request) {
   }
 
   const planId = parsed.data.planId as PlanId;
+  const period = parsed.data.period;
   const plan = PLANS[planId];
+  const chargeCents = period === 'annual' ? plan.priceCents * ANNUAL_MONTHS_CHARGED : plan.priceCents;
 
   try {
     const { stripe, siteUrl, ownerAccountId, providerAccountId, taxEnabled, taxCode } =
       getStripeSplitConfig();
-    const split = splitCents(plan.priceCents);
+    const split = splitCents(chargeCents);
 
     // Build the session params. `withTax` layers Stripe Tax on top; if the account has not
     // activated Stripe Tax yet, session creation fails and we transparently retry without it so
@@ -45,11 +51,14 @@ export async function POST(request: Request) {
           quantity: 1,
           price_data: {
             currency: 'usd',
-            unit_amount: plan.priceCents,
+            unit_amount: chargeCents,
             ...(withTax ? { tax_behavior: 'exclusive' as const } : {}),
             product_data: {
-              name: `Adamantite ${plan.name}`,
-              description: `${plan.monthlyCredits.toLocaleString()} credits for image and video generation.`,
+              name: `Adamantite ${plan.name} · ${period === 'annual' ? 'Annual' : 'Monthly'}`,
+              description:
+                period === 'annual'
+                  ? `${plan.monthlyCredits.toLocaleString()} credits / month · billed yearly (2 months free).`
+                  : `${plan.monthlyCredits.toLocaleString()} credits for image and video generation.`,
               ...(withTax && taxCode ? { tax_code: taxCode } : {}),
             },
           },
@@ -58,6 +67,7 @@ export async function POST(request: Request) {
       metadata: {
         planId: plan.id,
         planName: plan.name,
+        period,
         ownerCents: String(split.ownerCents),
         providerCents: String(split.providerCents),
         ownerAccountId,
