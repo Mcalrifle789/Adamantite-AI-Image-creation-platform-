@@ -1,149 +1,107 @@
-import { PLANS, ORDERED_PLAN_IDS } from '@/config/plans';
-import { MODELS } from '@/config/models';
-import { Wordmark } from '@/components/brand/Wordmark';
-import { HudFrame } from '@/components/hud/HudFrame';
-import { Button } from '@/components/ui/Button';
-import { CheckoutButton } from '@/components/billing/CheckoutButton';
-import type { MediaKind, ModelTier } from '@/lib/shared/api-types';
 import Link from 'next/link';
 
-const tierOrder: ModelTier[] = ['budget', 'mid', 'premium', 'high_end'];
-const kindOrder: MediaKind[] = ['image', 'video'];
+import { ORDERED_PLAN_IDS, PLANS } from '@/config/plans';
+import { Wordmark } from '@/components/brand/Wordmark';
+import { CheckoutButton } from '@/components/billing/CheckoutButton';
+
+// Per-tier neon border variant + nebula interior wash, matching the subscription mockup:
+// Port = blue, Standard = teal, Pro = purple, Max = magenta.
+const TIER_STYLE: Record<string, { frame: string; nebula: string; price: string }> = {
+  port: {
+    frame: 'neon-frame',
+    nebula:
+      'radial-gradient(120% 90% at 50% 120%, rgb(30 144 255 / 0.34), transparent 60%), radial-gradient(90% 60% at 80% 15%, rgb(59 130 246 / 0.2), transparent 55%)',
+    price: 'text-ada-blue-300',
+  },
+  standard: {
+    frame: 'neon-frame neon-frame--cyan',
+    nebula:
+      'radial-gradient(120% 90% at 50% 120%, rgb(34 211 238 / 0.3), transparent 60%), radial-gradient(90% 60% at 20% 10%, rgb(6 174 205 / 0.22), transparent 55%)',
+    price: 'text-ada-cyan-300',
+  },
+  pro: {
+    frame: 'neon-frame neon-frame--purple',
+    nebula:
+      'radial-gradient(120% 90% at 60% 120%, rgb(167 139 250 / 0.34), transparent 60%), radial-gradient(90% 60% at 80% 15%, rgb(139 92 246 / 0.24), transparent 55%)',
+    price: 'text-ada-cyan-300',
+  },
+  max: {
+    frame: 'neon-frame neon-frame--magenta',
+    nebula:
+      'radial-gradient(120% 90% at 65% 120%, rgb(244 114 182 / 0.36), transparent 60%), radial-gradient(90% 60% at 78% 18%, rgb(217 70 239 / 0.26), transparent 55%)',
+    price: 'text-ada-cyan-300',
+  },
+};
 
 export default function PricingPage() {
-  const unitPrices = buildUnitPrices();
-
   return (
-    <main className="min-h-screen px-4 py-5 text-ada-text sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-[var(--container-content)] flex-col gap-8">
-        <header className="flex items-center justify-between gap-4">
+    <main className="relative min-h-screen overflow-x-hidden px-4 pb-16 pt-6 text-ada-text sm:px-8">
+      <div className="relative mx-auto flex max-w-[118rem] flex-col gap-10">
+        <header className="flex items-start justify-between gap-4">
           <Link href="/" aria-label="Adamantite home" className="inline-flex">
-            <Wordmark size="header" />
+            <Wordmark size="hero" withAgent as="span" className="!text-[clamp(3rem,7vw,6rem)]" />
           </Link>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/workspace/demo">Workspace</Link>
-          </Button>
+          <Link
+            href="/"
+            className="mt-4 text-2xl text-ada-text underline decoration-white/40 underline-offset-8 drop-shadow-[0_0_14px_rgb(255_255_255_/_0.45)] transition duration-[var(--dur-3)] hover:text-ada-cyan-300"
+          >
+            Go back
+          </Link>
         </header>
 
-        <section className="grid gap-5">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl font-semibold tracking-normal text-ada-text">Subscription credits</h1>
-            <p className="mt-3 text-lg text-ada-text-muted">
-              Four plans fund one shared model key through integer credits. Every tier stays
-              available; the plan only changes monthly volume and concurrency.
-            </p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {ORDERED_PLAN_IDS.map((id) => {
-              const plan = PLANS[id];
-              return (
-                <HudFrame key={id} tone={id === 'standard' ? 'active' : 'default'} brackets={id === 'standard'}>
-                  <article className="flex h-full flex-col p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h2 className="text-2xl font-semibold">{plan.name}</h2>
-                        <p className="mt-1 text-sm text-ada-text-muted">{plan.concurrency} concurrent generations</p>
-                      </div>
-                      <span className={`rounded-md border px-2 py-1 font-mono text-xs ${accentClass(plan.accent)}`}>
-                        {plan.monthlyCredits.toLocaleString()} cr
-                      </span>
-                    </div>
-                    <div className="mt-5">
-                      <span className="text-4xl font-semibold">${(plan.priceCents / 100).toFixed(2)}</span>
-                      <span className="text-ada-text-muted"> / month</span>
-                    </div>
-                    <ul className="mt-5 grid gap-3 text-sm text-ada-text-muted">
-                      {plan.highlights.map((highlight) => (
-                        <li key={highlight} className="border-l border-[color:var(--color-ada-line)] pl-3">{highlight}</li>
-                      ))}
-                    </ul>
-                    <CheckoutButton plan={plan} featured={id === 'standard'} />
-                  </article>
-                </HudFrame>
-              );
-            })}
-          </div>
-        </section>
-
-        <HudFrame>
-          <section className="p-4 sm:p-5">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-semibold">Quota matrix</h2>
-                <p className="text-sm text-ada-text-muted">Approximate generations per monthly grant.</p>
-              </div>
-              <span className="font-mono text-xs text-ada-cyan-400">1 credit = $0.0001</span>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-                <thead>
-                  <tr className="border-b border-[color:var(--color-ada-line)] text-xs uppercase text-ada-blue-400">
-                    <th className="py-3 pr-4">Media</th>
-                    <th className="py-3 pr-4">Tier</th>
-                    <th className="py-3 pr-4">Unit</th>
-                    {ORDERED_PLAN_IDS.map((id) => (
-                      <th key={id} className="py-3 pr-4">{PLANS[id].name}</th>
+        <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          {ORDERED_PLAN_IDS.map((id) => {
+            const plan = PLANS[id];
+            const style = (TIER_STYLE[id] ?? TIER_STYLE.port)!;
+            return (
+              <article
+                key={id}
+                className={`${style.frame} min-h-[38rem] overflow-hidden p-8 transition duration-[var(--dur-3)] ease-[var(--ease-out)] hover:-translate-y-2`}
+              >
+                <div className="pointer-events-none absolute inset-0 opacity-90" style={{ backgroundImage: style.nebula }} />
+                <div className="relative z-10 flex h-full flex-col">
+                  <h2 className="text-[clamp(2.6rem,3.6vw,4rem)] font-bold leading-none text-white drop-shadow-[0_4px_14px_rgb(0_0_0_/_0.7)]">
+                    {plan.name}
+                  </h2>
+                  <div className="mt-6">
+                    <span className={`text-[clamp(2.2rem,3vw,3.4rem)] font-semibold ${style.price} drop-shadow-[0_0_18px_rgb(34_211_238_/_0.6)]`}>
+                      ${(plan.priceCents / 100).toFixed(2)}
+                    </span>
+                    <span className="ml-1 text-2xl text-ada-cyan-300/90">/month</span>
+                  </div>
+                  <div className="mt-6 h-px w-full bg-[rgb(120_205_255_/_0.5)] shadow-[0_0_14px_1px_rgb(60_170_255_/_0.6)]" />
+                  <ul className="mt-7 grid gap-4 text-lg text-white/90">
+                    {planHighlights(id).map((highlight) => (
+                      <li key={highlight} className="flex gap-3">
+                        <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white/70" />
+                        <span>{highlight}</span>
+                      </li>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {kindOrder.flatMap((kind) =>
-                    tierOrder.map((tier) => {
-                      const price = unitPrices[`${kind}:${tier}`] ?? 1;
-                      return (
-                        <tr key={`${kind}:${tier}`} className="border-b border-[color:var(--color-ada-line-quiet)]">
-                          <td className="py-3 pr-4 capitalize">{kind}</td>
-                          <td className="py-3 pr-4 capitalize">{tier.replace('_', ' ')}</td>
-                          <td className="py-3 pr-4 font-mono text-ada-text-muted">{price.toLocaleString()} cr</td>
-                          {ORDERED_PLAN_IDS.map((id) => (
-                            <td key={id} className="py-3 pr-4 font-mono text-ada-text">
-                              ~{Math.floor(PLANS[id].monthlyCredits / price).toLocaleString()}
-                            </td>
-                          ))}
-                        </tr>
-                      );
-                    }),
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </HudFrame>
-
-        <HudFrame tone="active" brackets>
-          <section className="grid gap-4 p-5">
-            <div>
-              <h2 className="text-xl font-semibold">Payment routing</h2>
-              <p className="mt-2 text-sm text-ada-text-muted">
-                Each simulated subscription records a 50% owner-wallet allocation and a 50%
-                provider-pool allocation. The provider pool is the budget behind the shared API key
-                that fans out to every model adapter.
-              </p>
-            </div>
-          </section>
-        </HudFrame>
+                  </ul>
+                  <div className="mt-auto">
+                    <CheckoutButton plan={plan} featured={id === 'standard'} />
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </section>
       </div>
     </main>
   );
 }
 
-function buildUnitPrices(): Record<string, number> {
-  const prices: Record<string, number> = {};
-  for (const model of MODELS) {
-    prices[`${model.kind}:${model.tier}`] = model.priceCredits;
-  }
-  return prices;
-}
-
-function accentClass(accent: string): string {
-  switch (accent) {
-    case 'cyan':
-      return 'border-ada-cyan-400 text-ada-cyan-400';
-    case 'purple':
-      return 'border-ada-tier-pro text-ada-tier-pro';
-    case 'magenta':
-      return 'border-ada-tier-max text-ada-tier-max';
+function planHighlights(planId: string): string[] {
+  switch (planId) {
+    case 'port':
+      return ['~67 image generations', '3–4 5s video generations'];
+    case 'standard':
+      return ['~133 image generations', '5–8 5s video generations'];
+    case 'pro':
+      return ['~250 image generations', '10–15 5s video generations'];
+    case 'max':
+      return ['~833 image generations', '33–50 video generations · 5s videos'];
     default:
-      return 'border-ada-blue-400 text-ada-blue-400';
+      return [];
   }
 }

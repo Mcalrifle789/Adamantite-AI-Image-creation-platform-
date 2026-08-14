@@ -24,9 +24,7 @@ export default async function WorkspacePage({
   const initialModelId = models.some((model) => model.id === query.model)
     ? query.model!
     : 'kling-2-5';
-  const initialPrompt =
-    query.prompt ??
-    'Refine the glass edges, keep the blue rain reflections, and render a slower camera move.';
+  const initialPrompt = query.prompt ?? '';
 
   return (
     <WorkspaceApp

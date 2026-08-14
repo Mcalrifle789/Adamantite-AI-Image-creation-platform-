@@ -21,3 +21,129 @@
 @supports not (clip-path: polygon(0 0)) {
   .hud, .hud__inner { clip-path: none; border-radius: var(--radius-lg); }
 }
+
+/* ── Neon rounded frame — the glowing blue rectangles from the mockups ─────────────────── */
+.neon-frame {
+  position: relative;
+  border-radius: 22px;
+  border: 1.5px solid rgb(90 178 255 / 0.85);
+  background: rgb(4 9 20 / 0.42);
+  box-shadow:
+    0 0 1px rgb(160 225 255 / 0.9),
+    0 0 10px rgb(30 144 255 / 0.5),
+    0 0 30px -6px rgb(30 144 255 / 0.55),
+    inset 0 0 18px -6px rgb(60 160 255 / 0.4);
+  transition:
+    box-shadow var(--dur-3) var(--ease-out),
+    border-color var(--dur-3) var(--ease-out),
+    transform var(--dur-3) var(--ease-out);
+}
+.neon-frame:hover {
+  border-color: rgb(150 220 255 / 0.95);
+  box-shadow:
+    0 0 2px rgb(180 235 255 / 1),
+    0 0 16px rgb(40 170 255 / 0.65),
+    0 0 46px -6px rgb(40 170 255 / 0.7),
+    inset 0 0 22px -6px rgb(80 180 255 / 0.5);
+}
+
+/* Colour-coded variants for the pricing tiers */
+.neon-frame--cyan   { border-color: rgb(90 230 245 / 0.9);  box-shadow: 0 0 1px rgb(180 250 255 / 0.9), 0 0 12px rgb(34 211 238 / 0.5), 0 0 32px -6px rgb(34 211 238 / 0.55), inset 0 0 18px -6px rgb(60 220 235 / 0.4); }
+.neon-frame--purple { border-color: rgb(180 150 255 / 0.9); box-shadow: 0 0 1px rgb(220 200 255 / 0.9), 0 0 12px rgb(167 139 250 / 0.5), 0 0 32px -6px rgb(167 139 250 / 0.55), inset 0 0 18px -6px rgb(150 120 245 / 0.4); }
+.neon-frame--magenta{ border-color: rgb(245 130 200 / 0.9); box-shadow: 0 0 1px rgb(255 200 235 / 0.9), 0 0 12px rgb(244 114 182 / 0.5), 0 0 32px -6px rgb(244 114 182 / 0.55), inset 0 0 18px -6px rgb(240 120 190 / 0.4); }
+
+.neon-frame--cyan:hover   { box-shadow: 0 0 2px rgb(200 252 255 / 1), 0 0 18px rgb(34 211 238 / 0.7), 0 0 48px -6px rgb(34 211 238 / 0.75), inset 0 0 22px -6px rgb(60 220 235 / 0.55); }
+.neon-frame--purple:hover { box-shadow: 0 0 2px rgb(230 215 255 / 1), 0 0 18px rgb(167 139 250 / 0.7), 0 0 48px -6px rgb(167 139 250 / 0.75), inset 0 0 22px -6px rgb(150 120 245 / 0.55); }
+.neon-frame--magenta:hover{ box-shadow: 0 0 2px rgb(255 210 240 / 1), 0 0 18px rgb(244 114 182 / 0.7), 0 0 48px -6px rgb(244 114 182 / 0.75), inset 0 0 22px -6px rgb(240 120 190 / 0.55); }
+
+/* ── Neon pill input — the "create something…" / "ask anything…" fields ────────────────── */
+.neon-input {
+  border-radius: 999px;
+  border: 1.5px solid rgb(90 178 255 / 0.85);
+  background: rgb(3 7 16 / 0.5);
+  color: var(--color-ada-text);
+  box-shadow:
+    0 0 1px rgb(160 225 255 / 0.9),
+    0 0 10px rgb(30 144 255 / 0.4),
+    0 0 26px -8px rgb(30 144 255 / 0.5),
+    inset 0 0 16px -8px rgb(60 160 255 / 0.4);
+  transition: box-shadow var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+}
+.neon-input::placeholder { color: rgb(210 228 255 / 0.72); }
+.neon-input:focus {
+  outline: none;
+  border-color: rgb(160 225 255 / 0.95);
+  box-shadow:
+    0 0 2px rgb(190 235 255 / 1),
+    0 0 16px rgb(40 170 255 / 0.6),
+    0 0 40px -8px rgb(40 170 255 / 0.7),
+    inset 0 0 20px -8px rgb(80 180 255 / 0.5);
+}
+
+/* ── HUD-bracket square used by the workspace preview panel ────────────────────────────── */
+.neon-bracket {
+  position: relative;
+  border-radius: 6px;
+  background: rgb(3 7 16 / 0.42);
+  box-shadow: inset 0 0 60px -20px rgb(30 144 255 / 0.35);
+}
+.neon-bracket::before,
+.neon-bracket::after {
+  content: "";
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  border-color: rgb(120 205 255 / 0.95);
+  filter: drop-shadow(0 0 6px rgb(40 170 255 / 0.8));
+  pointer-events: none;
+}
+.neon-bracket::before { top: -1px;  left: -1px;  border-top: 2px solid; border-left: 2px solid; border-top-left-radius: 8px; }
+.neon-bracket::after  { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; border-bottom-right-radius: 8px; }
+/* Second corner pair via a child span carrying .neon-bracket__corners */
+.neon-bracket .neon-bracket__corners::before,
+.neon-bracket .neon-bracket__corners::after {
+  content: "";
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  border-color: rgb(120 205 255 / 0.95);
+  filter: drop-shadow(0 0 6px rgb(40 170 255 / 0.8));
+  pointer-events: none;
+}
+.neon-bracket .neon-bracket__corners::before { top: -1px;  right: -1px;  border-top: 2px solid; border-right: 2px solid; border-top-right-radius: 8px; }
+.neon-bracket .neon-bracket__corners::after  { bottom: -1px; left: -1px;  border-bottom: 2px solid; border-left: 2px solid; border-bottom-left-radius: 8px; }
+
+/* ── Beveled / octagonal neon field — the "ask anything…" composer ─────────────────────── */
+.bevel-field {
+  --bev: 16px;
+  clip-path: polygon(
+    var(--bev) 0, calc(100% - var(--bev)) 0,
+    100% var(--bev), 100% calc(100% - var(--bev)),
+    calc(100% - var(--bev)) 100%, var(--bev) 100%,
+    0 calc(100% - var(--bev)), 0 var(--bev));
+  background: rgb(100 190 255 / 0.9);         /* the neon border layer */
+  padding: 1.5px;
+  filter:
+    drop-shadow(0 0 6px rgb(40 170 255 / 0.8))
+    drop-shadow(0 0 16px rgb(30 144 255 / 0.5));
+  transition: filter var(--dur-2) var(--ease-out);
+}
+.bevel-field:focus-within {
+  background: rgb(160 225 255 / 0.98);
+  filter:
+    drop-shadow(0 0 8px rgb(80 190 255 / 0.95))
+    drop-shadow(0 0 22px rgb(40 170 255 / 0.65));
+}
+.bevel-field__inner {
+  clip-path: inherit;
+  background: rgb(3 7 16 / 0.78);
+  height: 100%;
+}
+.bevel-field input {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--color-ada-text);
+}
+.bevel-field input::placeholder { color: rgb(210 228 255 / 0.7); }
