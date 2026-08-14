@@ -2,8 +2,8 @@
 
 @theme {
   /* ─── Ground & surfaces ─────────────────────────────────────────── */
-  --color-ada-void:        #000208;   /* deepest — behind the rain field only */
-  --color-ada-bg:          #05070D;   /* page background */
+  --color-ada-void:        #05050A;   /* deepest — behind the rain field only */
+  --color-ada-bg:          #05050A;   /* page background */
   --color-ada-surface-1:   #0A0F1A;   /* cards, rail */
   --color-ada-surface-2:   #101827;   /* raised: menus, inputs, dialogs */
   --color-ada-surface-3:   #18202F;   /* hover / pressed */
@@ -14,6 +14,8 @@
   --color-ada-blue-400:    #4FA8FF;   /* small text, secondary labels  8.0:1 */
   --color-ada-blue-500:    #1E90FF;   /* primary interactive           6.2:1 */
   --color-ada-blue-600:    #0A6FD4;   /* pressed / borders on light    */
+  --color-ada-cyan-100:    #DBF7FF;   /* luminous tint — pills, hero accents */
+  --color-ada-cyan-200:    #AEEEFF;   /* light accent text on glass */
   --color-ada-cyan-300:    #7CE3FF;   /* focus ring                   13.7:1 */
   --color-ada-cyan-400:    #22D3EE;   /* accent, prices, live state   11.1:1 */
   --color-ada-cyan-500:    #06AECD;
@@ -42,8 +44,9 @@
   --color-ada-line-quiet:  rgb(143 163 191 / 0.10);  /* dividers          */
 
   /* ─── Type ──────────────────────────────────────────────────────── */
-  --font-display: Georgia, "Iowan Old Style", "Times New Roman", serif;
-  --font-ui:      system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Refined geometric sans for the brand + UI (Linear/Vercel/Raycast register). */
+  --font-display: "Space Grotesk", "SF Pro Display", "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-ui:      "Inter", "SF Pro Text", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono:    ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
 
   --text-2xs:    0.6875rem;  --text-2xs--line-height: 1rem;      /* 11 — mono labels only */

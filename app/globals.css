@@ -31,21 +31,23 @@ body {
     'tnum' 1;
 }
 
-/* ── The wordmark — ux-patterns.md §4.2 / ADR-07, reproduced verbatim ──────────────────── */
+/* ── The wordmark — luminous cyan → soft-blue geometric gradient ───────────────────────── */
 .ada-wordmark {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   color: transparent;
-  -webkit-text-stroke: 1.25px var(--color-ada-cyan-300);
-  background-image: linear-gradient(178deg, #1b4fa8 0%, #1e90ff 46%, #0b2c63 100%);
+  background-image: linear-gradient(176deg, #CFF3FF 0%, #62CBFF 42%, #2E86FF 78%, #1E6BE0 100%);
   -webkit-background-clip: text;
   background-clip: text;
-  text-shadow: var(--glow-text);
+  -webkit-text-stroke: 0;
+  text-shadow:
+    0 0 24px rgb(70 190 255 / 0.35),
+    0 0 60px rgb(40 130 255 / 0.18);
   paint-order: stroke fill;
 }
-@supports not (-webkit-text-stroke: 1px red) {
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
   .ada-wordmark {
-    -webkit-text-stroke: 0;
     color: var(--color-ada-blue-300);
     background: none;
     text-shadow: none;
@@ -57,6 +59,26 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Slow drifting aurora used inside the premium model tiles. */
+@keyframes ada-aura-drift {
+  0%   { transform: translate3d(-6%, 4%, 0) scale(1.05); opacity: 0.7; }
+  50%  { transform: translate3d(6%, -4%, 0) scale(1.15); opacity: 1; }
+  100% { transform: translate3d(-6%, 4%, 0) scale(1.05); opacity: 0.7; }
+}
+
+/* Gentle atmospheric fog behind the whole interface. */
+@keyframes ada-fog-drift {
+  0%   { transform: translate3d(-2%, 0, 0); opacity: 0.55; }
+  50%  { transform: translate3d(2%, -1.5%, 0); opacity: 0.8; }
+  100% { transform: translate3d(-2%, 0, 0); opacity: 0.55; }
+}
+
+/* Very slow floating dust field. */
+@keyframes ada-dust-float {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, -80px, 0); }
 }
 
 @keyframes ada-skeleton-breathe {

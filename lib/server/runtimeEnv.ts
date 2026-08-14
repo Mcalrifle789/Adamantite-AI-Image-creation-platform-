@@ -27,6 +27,22 @@ const envSchema = z.object({
   OWNER_STRIPE_CONNECTED_ACCOUNT_ID: z.string().min(1).optional(),
   PROVIDER_STRIPE_CONNECTED_ACCOUNT_ID: z.string().min(1).optional(),
 
+  /**
+   * Collect sales tax at checkout via Stripe Tax. Default: on. Requires Stripe Tax to be
+   * activated in the dashboard (Settings → Tax: origin address + registrations). Set to
+   * "false" to keep checkout working before Stripe Tax is configured. Tax is added on top of
+   * the plan price (tax-exclusive) and stays with the platform — it is never split to the
+   * connected accounts.
+   */
+  STRIPE_TAX_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform((value) => value === 'true'),
+
+  /** Optional Stripe product tax code (e.g. txcd_10103001 for SaaS). Falls back to the
+   * account's default product tax code when unset. */
+  STRIPE_TAX_CODE: z.string().min(1).optional(),
+
   /** Multiplies every mock generation's queued/running duration. Default: 1. */
   MOCK_LATENCY_SCALE: z.coerce.number().nonnegative().default(1),
 

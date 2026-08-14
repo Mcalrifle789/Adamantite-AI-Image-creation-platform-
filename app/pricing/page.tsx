@@ -69,7 +69,8 @@ export default function PricingPage() {
                     </span>
                     <span className="ml-1 text-2xl text-ada-cyan-300/90">/month</span>
                   </div>
-                  <div className="mt-6 h-px w-full bg-[rgb(120_205_255_/_0.5)] shadow-[0_0_14px_1px_rgb(60_170_255_/_0.6)]" />
+                  <p className="mt-2 text-sm text-white/55">+ sales tax, calculated at checkout</p>
+                  <div className="mt-5 h-px w-full bg-[rgb(120_205_255_/_0.5)] shadow-[0_0_14px_1px_rgb(60_170_255_/_0.6)]" />
                   <ul className="mt-7 grid gap-4 text-lg text-white/90">
                     {planHighlights(id).map((highlight) => (
                       <li key={highlight} className="flex gap-3">

@@ -48,10 +48,13 @@ async function handleCheckoutCompleted(
   if (session.payment_status !== 'paid') return;
   if (!session.payment_intent || typeof session.payment_intent !== 'string') return;
 
-  const grossCents = session.amount_total ?? 0;
-  if (grossCents <= 0) return;
+  // Split the plan price only — sales tax collected on top (amount_total - subtotal) is the
+  // platform's to remit and must never be transferred to the connected accounts. The checkout
+  // route writes the exact per-side base amounts into metadata; fall back to the pre-tax
+  // subtotal, then to amount_total, if that metadata is ever missing.
+  const split = resolveSplit(session);
+  if (split.ownerCents + split.providerCents <= 0) return;
 
-  const split = splitCents(grossCents);
   const transferGroup = `adamantite_${session.id}`;
 
   await Promise.all([
@@ -80,4 +83,23 @@ async function handleCheckoutCompleted(
       },
     }),
   ]);
+}
+
+/** The base plan amount to split, excluding any sales tax. Prefers the exact per-side cents the
+ * checkout route recorded in metadata; otherwise splits the pre-tax subtotal. */
+function resolveSplit(session: Stripe.Checkout.Session): { ownerCents: number; providerCents: number } {
+  const ownerFromMeta = Number(session.metadata?.ownerCents);
+  const providerFromMeta = Number(session.metadata?.providerCents);
+  if (
+    Number.isInteger(ownerFromMeta) &&
+    Number.isInteger(providerFromMeta) &&
+    ownerFromMeta >= 0 &&
+    providerFromMeta >= 0 &&
+    ownerFromMeta + providerFromMeta > 0
+  ) {
+    return { ownerCents: ownerFromMeta, providerCents: providerFromMeta };
+  }
+
+  const baseCents = session.amount_subtotal ?? session.amount_total ?? 0;
+  return splitCents(baseCents);
 }

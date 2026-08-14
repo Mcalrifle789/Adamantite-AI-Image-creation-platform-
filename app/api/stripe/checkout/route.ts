@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import type Stripe from 'stripe';
 import { z } from 'zod';
 
 import { PLANS } from '@/config/plans';
@@ -25,21 +26,31 @@ export async function POST(request: Request) {
   const plan = PLANS[planId];
 
   try {
-    const { stripe, siteUrl, ownerAccountId, providerAccountId } = getStripeSplitConfig();
+    const { stripe, siteUrl, ownerAccountId, providerAccountId, taxEnabled, taxCode } =
+      getStripeSplitConfig();
     const split = splitCents(plan.priceCents);
-    const session = await stripe.checkout.sessions.create({
+
+    // Build the session params. `withTax` layers Stripe Tax on top; if the account has not
+    // activated Stripe Tax yet, session creation fails and we transparently retry without it so
+    // the "Choose plan" button never breaks in production.
+    const buildParams = (withTax: boolean): Stripe.Checkout.SessionCreateParams => ({
       mode: 'payment',
       success_url: `${siteUrl}/pricing?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/pricing?checkout=cancelled`,
+      ...(withTax
+        ? { automatic_tax: { enabled: true }, billing_address_collection: 'required' as const }
+        : {}),
       line_items: [
         {
           quantity: 1,
           price_data: {
             currency: 'usd',
             unit_amount: plan.priceCents,
+            ...(withTax ? { tax_behavior: 'exclusive' as const } : {}),
             product_data: {
               name: `Adamantite ${plan.name}`,
               description: `${plan.monthlyCredits.toLocaleString()} credits for image and video generation.`,
+              ...(withTax && taxCode ? { tax_code: taxCode } : {}),
             },
           },
         },
@@ -61,6 +72,18 @@ export async function POST(request: Request) {
       },
     });
 
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.create(buildParams(taxEnabled));
+    } catch (error) {
+      if (taxEnabled && isTaxNotConfiguredError(error)) {
+        // Stripe Tax isn't set up in the dashboard yet — fall back to a taxless session.
+        session = await stripe.checkout.sessions.create(buildParams(false));
+      } else {
+        throw error;
+      }
+    }
+
     return NextResponse.json({ url: session.url });
   } catch (error) {
     return NextResponse.json(
@@ -73,4 +96,23 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   }
+}
+
+/** True when Stripe rejects a session because Stripe Tax / automatic_tax isn't configured on the
+ * account, so the caller can retry without tax rather than surfacing a broken checkout. */
+function isTaxNotConfiguredError(error: unknown): boolean {
+  const raw = error as { param?: unknown; message?: unknown } | null;
+  const param = typeof raw?.param === 'string' ? raw.param : '';
+  const message = typeof raw?.message === 'string' ? raw.message.toLowerCase() : '';
+  return (
+    param.includes('automatic_tax') ||
+    message.includes('automatic_tax') ||
+    (message.includes('tax') &&
+      (message.includes('origin address') ||
+        message.includes('not been configured') ||
+        message.includes('not configured') ||
+        message.includes('activate') ||
+        message.includes('enable stripe tax') ||
+        message.includes('tax settings')))
+  );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { Atmosphere } from '@/components/background/Atmosphere';
 import { RainField } from '@/components/background/RainField';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ToastRegion } from '@/components/ui/Toast';
@@ -27,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <Atmosphere />
         <RainField />
         <QueryProvider>
           <div className="relative z-10">{children}</div>

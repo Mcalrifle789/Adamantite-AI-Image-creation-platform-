@@ -14,14 +14,19 @@ interface ModelSelectorProps {
 const MODEL_STORAGE_KEY = 'ada.ui.modelId';
 const PROMPT_STORAGE_KEY = 'ada.ui.prompt';
 
-// The four hero tiles from the landing mockup, in the exact order and with the exact
-// labels shown in the reference art.
+// The four hero tiles, in the reference order.
 const FEATURED_ORDER = ['kling-2-5', 'seedance-2-5', 'nano-banana-2', 'gpt-image-2'];
-const TILE_LABELS: Record<string, string> = {
-  'kling-2-5': 'Kling (Latest)',
-  'seedance-2-5': 'Seedance 2.5',
-  'nano-banana-2': 'Nano Banana\n(LATEST)',
-  'gpt-image-2': 'GPT-Image 2',
+
+// A distinct — but on-palette — aura per model so each tile reads as its own product.
+const ACCENTS: Record<string, string> = {
+  'kling-2-5':
+    'radial-gradient(60% 60% at 30% 25%, rgb(34 211 238 / 0.55), transparent 70%), radial-gradient(70% 70% at 75% 80%, rgb(30 144 255 / 0.4), transparent 72%)',
+  'seedance-2-5':
+    'radial-gradient(60% 60% at 70% 25%, rgb(56 160 255 / 0.55), transparent 70%), radial-gradient(70% 70% at 25% 80%, rgb(80 120 255 / 0.4), transparent 72%)',
+  'nano-banana-2':
+    'radial-gradient(60% 60% at 30% 30%, rgb(120 130 255 / 0.5), transparent 70%), radial-gradient(70% 70% at 78% 78%, rgb(40 200 255 / 0.4), transparent 72%)',
+  'gpt-image-2':
+    'radial-gradient(60% 60% at 68% 28%, rgb(45 220 210 / 0.5), transparent 70%), radial-gradient(70% 70% at 24% 82%, rgb(30 144 255 / 0.42), transparent 72%)',
 };
 
 export function ModelSelector({ featuredModels, allModels }: ModelSelectorProps) {
@@ -33,7 +38,6 @@ export function ModelSelector({ featuredModels, allModels }: ModelSelectorProps)
   const tiles = useMemo(() => {
     const byId = new Map(featuredModels.map((model) => [model.id, model]));
     const ordered = FEATURED_ORDER.map((id) => byId.get(id)).filter(Boolean) as PublicModelCard[];
-    // Fall back to whatever featured models exist if the config ids ever change.
     return ordered.length ? ordered : featuredModels.slice(0, 4);
   }, [featuredModels]);
 
@@ -66,62 +70,126 @@ export function ModelSelector({ featuredModels, allModels }: ModelSelectorProps)
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-[92rem] gap-8 sm:gap-10">
-      {/* create something… */}
-      <form onSubmit={submitPrompt} className="mx-auto w-full max-w-[80rem]">
+    <div className="mx-auto grid w-full max-w-[80rem] gap-12">
+      {/* create something… — full capsule, soft inner glow */}
+      <form onSubmit={submitPrompt} className="mx-auto w-full max-w-[46rem]">
         <label htmlFor="prompt" className="sr-only">
           Prompt
         </label>
-        <input
-          id="prompt"
-          name="prompt"
-          value={prompt}
-          onChange={(event) => updatePrompt(event.target.value)}
-          placeholder="create something..."
-          autoComplete="off"
-          className="neon-input h-[4.25rem] w-full px-8 text-xl tracking-tight sm:text-2xl"
-        />
+        <div className="neon-input flex items-center gap-3 px-6 py-1">
+          <SparkIcon className="h-5 w-5 shrink-0 text-ada-cyan-300/80" />
+          <input
+            id="prompt"
+            name="prompt"
+            value={prompt}
+            onChange={(event) => updatePrompt(event.target.value)}
+            placeholder="create something..."
+            autoComplete="off"
+            className="h-14 w-full bg-transparent text-lg text-ada-text outline-none placeholder:text-ada-cyan-300/50 sm:text-xl"
+          />
+          <button
+            type="submit"
+            aria-label="Start creating"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[rgb(34_211_238_/_0.14)] text-ada-cyan-300 shadow-[0_0_18px_-4px_rgb(34_211_238_/_0.8)] transition duration-[var(--dur-2)] ease-[var(--ease-out)] hover:bg-[rgb(34_211_238_/_0.24)] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ada-cyan-300"
+          >
+            <ArrowIcon className="h-5 w-5" />
+          </button>
+        </div>
       </form>
 
-      {/* four hero model tiles */}
-      <div className="grid grid-cols-2 gap-5 sm:gap-6 lg:grid-cols-4" role="list" aria-label="Featured models">
-        {tiles.map((model) => (
-          <button
-            key={model.id}
-            type="button"
-            role="listitem"
-            onClick={() => openWorkspace(model.id)}
-            className="neon-frame group block overflow-hidden p-3 text-left outline-none focus-visible:border-ada-cyan-300 sm:p-4"
-          >
-            <span className="mb-3 block whitespace-pre-line px-1 text-lg font-medium leading-tight text-ada-text sm:text-xl">
-              {TILE_LABELS[model.id] ?? model.displayName}
-            </span>
-            <span className="relative block overflow-hidden rounded-[14px] border border-[rgb(90_178_255_/_0.35)] bg-ada-void">
-              <Image
-                src={model.previewAssetPath}
-                alt={`${model.displayName} preview`}
-                width={480}
-                height={360}
-                className="aspect-square w-full object-cover transition duration-[600ms] ease-[var(--ease-out)] group-hover:scale-[1.04]"
-              />
-            </span>
-          </button>
-        ))}
-      </div>
+      {/* four premium model tiles */}
+      <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" aria-label="Featured models">
+        {tiles.map((model) => {
+          const isLatest = model.badges?.includes('latest');
+          return (
+            <li key={model.id}>
+              <button
+                type="button"
+                onClick={() => openWorkspace(model.id)}
+                className="glass-card group flex w-full flex-col gap-4 p-4 text-left focus-visible:outline-none"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-lg font-semibold tracking-tight text-white">
+                    {model.displayName}
+                  </span>
+                  {isLatest ? (
+                    <span className="rounded-full border border-ada-cyan-300/40 bg-[rgb(34_211_238_/_0.1)] px-2.5 py-0.5 text-[0.625rem] font-semibold uppercase tracking-[0.18em] text-ada-cyan-200 shadow-[0_0_16px_-4px_rgb(34_211_238_/_0.9)]">
+                      Latest
+                    </span>
+                  ) : null}
+                </div>
+
+                <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-black/50">
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 blur-[6px] motion-safe:animate-[ada-aura-drift_9s_ease-in-out_infinite]"
+                    style={{ backgroundImage: ACCENTS[model.id] }}
+                  />
+                  <Image
+                    src={model.previewAssetPath}
+                    alt={`${model.displayName} preview`}
+                    width={480}
+                    height={480}
+                    className="relative h-full w-full object-cover transition duration-[600ms] ease-[var(--ease-out)] group-hover:scale-[1.06]"
+                  />
+                  <span aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10" />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[0.7rem] font-medium uppercase tracking-[0.2em] text-ada-cyan-200/60">
+                    {model.kind}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-sm text-white/45 transition group-hover:text-ada-cyan-200">
+                    Open
+                    <ArrowIcon className="h-3.5 w-3.5 transition-transform duration-[var(--dur-2)] group-hover:translate-x-0.5" />
+                  </span>
+                </div>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
 
       {/* more models */}
       <a
         href="#full-catalogue"
-        className="group mx-auto mt-1 grid justify-items-center gap-2 text-center outline-none"
+        className="group mx-auto grid justify-items-center gap-2 text-center outline-none"
         aria-label="More models"
       >
-        <span className="text-lg font-medium text-ada-cyan-300 drop-shadow-[0_0_12px_rgb(34_211_238_/_0.6)]">
+        <span className="text-sm font-medium uppercase tracking-[0.28em] text-ada-cyan-200/70 transition group-hover:text-ada-cyan-200">
           More models
         </span>
-        <span className="grid h-14 w-14 place-items-center rounded-full border-2 border-ada-cyan-300 text-2xl leading-none text-ada-cyan-300 shadow-[0_0_22px_-4px_rgb(124_227_255_/_0.9)] transition duration-[var(--dur-3)] ease-[var(--ease-out)] group-hover:translate-y-1">
-          ↓
+        <span className="grid h-11 w-11 place-items-center rounded-full border border-ada-cyan-300/40 text-ada-cyan-200 shadow-[0_0_20px_-6px_rgb(124_227_255_/_0.85)] transition duration-[var(--dur-3)] ease-[var(--ease-out)] group-hover:translate-y-1 group-hover:border-ada-cyan-300/70">
+          <ChevronIcon className="h-5 w-5" />
         </span>
       </a>
     </div>
+  );
+}
+
+function SparkIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden className={className}>
+      <path
+        d="M12 3l1.8 4.9L18.8 9.7 13.8 11.5 12 16.4 10.2 11.5 5.2 9.7 10.2 7.9 12 3z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+function ArrowIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden className={className}>
+      <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ChevronIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden className={className}>
+      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

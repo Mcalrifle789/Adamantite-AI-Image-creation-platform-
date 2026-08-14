@@ -8,6 +8,8 @@ export interface PublicModelCard {
   priceCredits: number;
   previewAssetPath: string;
   featured: boolean;
+  /** Marketing badges (e.g. 'latest', 'fast'); optional so non-landing callers can omit it. */
+  badges?: string[];
 }
 
 export function logoForModel(modelId: string): string {

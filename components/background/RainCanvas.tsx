@@ -18,8 +18,8 @@ const CYAN_400 = '34 211 238';
 
 const MAX_FPS = 60;
 const FRAME_BUDGET_MS = 1000 / MAX_FPS;
-const MAX_SQUARES_PER_COLUMN = 22;
-const TRAIL_FILL = 'rgb(5 7 13 / 0.14)';
+const MAX_SQUARES_PER_COLUMN = 16;
+const TRAIL_FILL = 'rgb(5 5 10 / 0.16)';
 const BACKING_SCALE_CAP = 1.5;
 
 interface Square {
@@ -38,9 +38,9 @@ function makeSquare(canvasHeight: number, alphaScale: number, spawnAtTop: boolea
   const color = Math.random() > 0.5 ? BLUE_500 : CYAN_400;
   return {
     y: spawnAtTop ? randomBetween(-canvasHeight, 0) : -randomBetween(4, 40),
-    size: randomBetween(2, 5),
-    speed: randomBetween(46, 128),
-    alpha: randomBetween(0.28, 0.9) * alphaScale,
+    size: randomBetween(1.5, 4),
+    speed: randomBetween(40, 112),
+    alpha: randomBetween(0.12, 0.5) * alphaScale,
     color,
   };
 }
@@ -108,7 +108,7 @@ export default function RainCanvas({ density = 'full' }: RainCanvasProps) {
 
     const columnWidth = width / columns;
     const columnState: Square[][] = Array.from({ length: columns }, () =>
-      Array.from({ length: Math.min(MAX_SQUARES_PER_COLUMN, 7) }, () => makeSquare(height, alphaScale, true)),
+      Array.from({ length: Math.min(MAX_SQUARES_PER_COLUMN, 4) }, () => makeSquare(height, alphaScale, true)),
     );
 
     function handleVisibility() {
@@ -149,7 +149,7 @@ export default function RainCanvas({ density = 'full' }: RainCanvasProps) {
           ctx!.fillRect(x - square.size / 2, square.y, square.size, square.size);
         }
 
-        if (squares.length < MAX_SQUARES_PER_COLUMN && Math.random() < 0.035) {
+        if (squares.length < MAX_SQUARES_PER_COLUMN && Math.random() < 0.02) {
           squares.push(makeSquare(height, alphaScale, false));
         }
       }
