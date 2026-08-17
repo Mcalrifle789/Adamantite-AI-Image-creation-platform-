@@ -94,9 +94,9 @@ export function PricingCards({ plans }: { plans: PricingPlan[] }) {
                   </span>
                   <span className="ml-1 text-2xl text-ada-cyan-300/90">/month</span>
                 </div>
-                <p className="mt-2 text-sm text-white/55">
-                  {period === 'annual' ? 'billed yearly · + sales tax' : '+ sales tax, calculated at checkout'}
-                </p>
+                {period === 'annual' ? (
+                  <p className="mt-2 text-sm text-white/55">billed yearly</p>
+                ) : null}
                 <div className="mt-5 h-px w-full bg-[rgb(120_205_255_/_0.5)] shadow-[0_0_14px_1px_rgb(60_170_255_/_0.6)]" />
                 <ul className="mt-7 grid gap-4 text-lg text-white/90">
                   {plan.highlights.map((highlight) => (

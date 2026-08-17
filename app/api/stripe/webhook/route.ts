@@ -53,10 +53,8 @@ async function handleCheckoutCompleted(
   const { ownerAccountId, providerAccountId } = config;
   if (!ownerAccountId || !providerAccountId) return;
 
-  // Split the plan price only — sales tax collected on top (amount_total - subtotal) is the
-  // platform's to remit and must never be transferred to the connected accounts. The checkout
-  // route writes the exact per-side base amounts into metadata; fall back to the pre-tax
-  // subtotal, then to amount_total, if that metadata is ever missing.
+  // The checkout route writes the exact per-side amounts into metadata; fall back to the
+  // charged total if that metadata is ever missing.
   const split = resolveSplit(session);
   if (split.ownerCents + split.providerCents <= 0) return;
 
@@ -90,8 +88,8 @@ async function handleCheckoutCompleted(
   ]);
 }
 
-/** The base plan amount to split, excluding any sales tax. Prefers the exact per-side cents the
- * checkout route recorded in metadata; otherwise splits the pre-tax subtotal. */
+/** The amount to split. Prefers the exact per-side cents the checkout route recorded in
+ * metadata; otherwise splits the session total. */
 function resolveSplit(session: Stripe.Checkout.Session): { ownerCents: number; providerCents: number } {
   const ownerFromMeta = Number(session.metadata?.ownerCents);
   const providerFromMeta = Number(session.metadata?.providerCents);
@@ -105,6 +103,6 @@ function resolveSplit(session: Stripe.Checkout.Session): { ownerCents: number; p
     return { ownerCents: ownerFromMeta, providerCents: providerFromMeta };
   }
 
-  const baseCents = session.amount_subtotal ?? session.amount_total ?? 0;
-  return splitCents(baseCents);
+  const totalCents = session.amount_total ?? session.amount_subtotal ?? 0;
+  return splitCents(totalCents);
 }

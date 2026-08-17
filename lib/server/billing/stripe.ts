@@ -11,10 +11,6 @@ export interface StripeSplitConfig {
   ownerAccountId?: string;
   providerAccountId?: string;
   siteUrl: string;
-  /** Whether to collect sales tax at checkout via Stripe Tax. */
-  taxEnabled: boolean;
-  /** Optional Stripe product tax code; undefined uses the account default. */
-  taxCode?: string;
 }
 
 export function getStripeSplitConfig(): StripeSplitConfig {
@@ -35,8 +31,6 @@ export function getStripeSplitConfig(): StripeSplitConfig {
     ownerAccountId: env.OWNER_STRIPE_CONNECTED_ACCOUNT_ID,
     providerAccountId: env.PROVIDER_STRIPE_CONNECTED_ACCOUNT_ID,
     siteUrl: resolveSiteUrl(),
-    taxEnabled: env.STRIPE_TAX_ENABLED,
-    taxCode: env.STRIPE_TAX_CODE,
   };
 }
 
