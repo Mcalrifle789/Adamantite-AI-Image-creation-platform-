@@ -2,7 +2,7 @@ import 'server-only';
 
 import Stripe from 'stripe';
 
-import { loadRuntimeEnv, type Env } from '../runtimeEnv';
+import { loadStripeEnv, type Env } from '../runtimeEnv';
 
 export interface StripeSplitConfig {
   stripe: Stripe;
@@ -18,7 +18,7 @@ export interface StripeSplitConfig {
 }
 
 export function getStripeSplitConfig(): StripeSplitConfig {
-  const env = loadRuntimeEnv();
+  const env = loadStripeEnv();
   // Only the secret key is required to accept payments. The two Connect account IDs are
   // optional: supply both to route the 50/50 split, or leave them unset for a plain checkout.
   if (!env.STRIPE_SECRET_KEY) {
@@ -41,14 +41,14 @@ export function getStripeSplitConfig(): StripeSplitConfig {
 }
 
 export function resolveSiteUrl(): string {
-  const env = loadRuntimeEnv();
+  const env = loadStripeEnv();
   if (env.SITE_URL) return env.SITE_URL.replace(/\/$/, '');
   if (env.VERCEL_URL) return `https://${env.VERCEL_URL.replace(/\/$/, '')}`;
   return 'http://localhost:3000';
 }
 
 export function getStripeWebhookConfig(): StripeSplitConfig & { webhookSecret: string } {
-  const env = loadRuntimeEnv();
+  const env = loadStripeEnv();
   if (!env.STRIPE_WEBHOOK_SECRET) {
     throw new Error('Stripe webhook is not configured. Missing: STRIPE_WEBHOOK_SECRET');
   }

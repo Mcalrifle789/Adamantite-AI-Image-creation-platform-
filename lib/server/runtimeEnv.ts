@@ -52,6 +52,39 @@ const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
+/**
+ * Stripe-only env subset, deliberately independent of the full {@link envSchema}. Accepting a
+ * payment must not depend on unrelated app config such as `AUTH_SECRET`; the billing routes load
+ * this instead of {@link loadRuntimeEnv} so a missing `AUTH_SECRET` can never surface as a
+ * checkout failure. Every field is optional (or defaulted) — the routes themselves decide what
+ * they require (e.g. `STRIPE_SECRET_KEY`).
+ */
+const stripeEnvSchema = z.object({
+  SITE_URL: z.string().url().optional(),
+  VERCEL_URL: z.string().min(1).optional(),
+  STRIPE_SECRET_KEY: z.string().min(1).optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
+  OWNER_STRIPE_CONNECTED_ACCOUNT_ID: z.string().min(1).optional(),
+  PROVIDER_STRIPE_CONNECTED_ACCOUNT_ID: z.string().min(1).optional(),
+  STRIPE_TAX_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform((value) => value === 'true'),
+  STRIPE_TAX_CODE: z.string().min(1).optional(),
+});
+
+export type StripeEnv = z.infer<typeof stripeEnvSchema>;
+
+export function loadStripeEnv(): StripeEnv {
+  const parsed = stripeEnvSchema.safeParse(process.env);
+  // Never let a malformed *optional* field (e.g. a bad SITE_URL) block checkout — fall back to a
+  // tax-on default and let the routes validate the keys they actually need.
+  if (!parsed.success) {
+    return { STRIPE_TAX_ENABLED: true } as StripeEnv;
+  }
+  return parsed.data;
+}
+
 export function loadRuntimeEnv(): Env {
   const parsed = envSchema.safeParse(process.env);
 
