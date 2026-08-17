@@ -48,6 +48,11 @@ async function handleCheckoutCompleted(
   if (session.payment_status !== 'paid') return;
   if (!session.payment_intent || typeof session.payment_intent !== 'string') return;
 
+  // The 50/50 split only runs when both Connect accounts are configured. On a standard account
+  // the payment simply settles into the platform balance — nothing to transfer.
+  const { ownerAccountId, providerAccountId } = config;
+  if (!ownerAccountId || !providerAccountId) return;
+
   // Split the plan price only — sales tax collected on top (amount_total - subtotal) is the
   // platform's to remit and must never be transferred to the connected accounts. The checkout
   // route writes the exact per-side base amounts into metadata; fall back to the pre-tax
@@ -61,7 +66,7 @@ async function handleCheckoutCompleted(
     config.stripe.transfers.create({
       amount: split.ownerCents,
       currency: 'usd',
-      destination: config.ownerAccountId,
+      destination: ownerAccountId,
       transfer_group: transferGroup,
       source_transaction: undefined,
       metadata: {
@@ -73,7 +78,7 @@ async function handleCheckoutCompleted(
     config.stripe.transfers.create({
       amount: split.providerCents,
       currency: 'usd',
-      destination: config.providerAccountId,
+      destination: providerAccountId,
       transfer_group: transferGroup,
       source_transaction: undefined,
       metadata: {

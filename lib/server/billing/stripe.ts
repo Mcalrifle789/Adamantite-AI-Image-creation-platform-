@@ -6,8 +6,10 @@ import { loadRuntimeEnv, type Env } from '../runtimeEnv';
 
 export interface StripeSplitConfig {
   stripe: Stripe;
-  ownerAccountId: string;
-  providerAccountId: string;
+  /** Connect account IDs are optional — set both to enable the 50/50 split transfers. When
+   * unset, checkout still works as a standard payment into the platform's own balance. */
+  ownerAccountId?: string;
+  providerAccountId?: string;
   siteUrl: string;
   /** Whether to collect sales tax at checkout via Stripe Tax. */
   taxEnabled: boolean;
@@ -17,27 +19,21 @@ export interface StripeSplitConfig {
 
 export function getStripeSplitConfig(): StripeSplitConfig {
   const env = loadRuntimeEnv();
-  const missing = [
-    ['STRIPE_SECRET_KEY', env.STRIPE_SECRET_KEY],
-    ['OWNER_STRIPE_CONNECTED_ACCOUNT_ID', env.OWNER_STRIPE_CONNECTED_ACCOUNT_ID],
-    ['PROVIDER_STRIPE_CONNECTED_ACCOUNT_ID', env.PROVIDER_STRIPE_CONNECTED_ACCOUNT_ID],
-  ]
-    .filter(([, value]) => !value)
-    .map(([key]) => key);
-
-  if (missing.length > 0) {
-    throw new Error(`Stripe payments are not configured. Missing: ${missing.join(', ')}`);
+  // Only the secret key is required to accept payments. The two Connect account IDs are
+  // optional: supply both to route the 50/50 split, or leave them unset for a plain checkout.
+  if (!env.STRIPE_SECRET_KEY) {
+    throw new Error('Stripe payments are not configured. Missing: STRIPE_SECRET_KEY');
   }
 
   return {
-    stripe: new Stripe(env.STRIPE_SECRET_KEY!, {
+    stripe: new Stripe(env.STRIPE_SECRET_KEY, {
       apiVersion: '2026-07-29.dahlia',
       appInfo: {
         name: 'Adamantite Agent',
       },
     }),
-    ownerAccountId: env.OWNER_STRIPE_CONNECTED_ACCOUNT_ID!,
-    providerAccountId: env.PROVIDER_STRIPE_CONNECTED_ACCOUNT_ID!,
+    ownerAccountId: env.OWNER_STRIPE_CONNECTED_ACCOUNT_ID,
+    providerAccountId: env.PROVIDER_STRIPE_CONNECTED_ACCOUNT_ID,
     siteUrl: resolveSiteUrl(),
     taxEnabled: env.STRIPE_TAX_ENABLED,
     taxCode: env.STRIPE_TAX_CODE,

@@ -70,8 +70,8 @@ export async function POST(request: Request) {
         period,
         ownerCents: String(split.ownerCents),
         providerCents: String(split.providerCents),
-        ownerAccountId,
-        providerAccountId,
+        ownerAccountId: ownerAccountId ?? '',
+        providerAccountId: providerAccountId ?? '',
       },
       payment_intent_data: {
         metadata: {
