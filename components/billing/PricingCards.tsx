@@ -100,7 +100,7 @@ export function PricingCards({ plans }: { plans: PricingPlan[] }) {
                 <div className="mt-5 h-px w-full bg-[rgb(120_205_255_/_0.5)] shadow-[0_0_14px_1px_rgb(60_170_255_/_0.6)]" />
                 <ul className="mt-7 grid gap-4 text-lg text-white/90">
                   {plan.highlights.map((highlight) => (
-                    <li key={highlight} className="flex gap-3">
+                    <li key={highlight} className="prose-editorial flex gap-3">
                       <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white/70" />
                       <span>{highlight}</span>
                     </li>

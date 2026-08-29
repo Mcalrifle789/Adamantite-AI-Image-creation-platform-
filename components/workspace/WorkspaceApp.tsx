@@ -343,7 +343,7 @@ export function WorkspaceApp({
                       <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full border border-ada-cyan-300/40 text-ada-cyan-200 shadow-[0_0_22px_-6px_rgb(124_227_255_/_0.8)]">
                         ✦
                       </div>
-                      <p className="text-sm text-ada-text-muted">
+                      <p className="prose-editorial text-base text-ada-text-muted">
                         Describe an idea below and press Generate to create your first asset.
                       </p>
                     </div>

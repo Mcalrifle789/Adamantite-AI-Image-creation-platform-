@@ -35,7 +35,7 @@ export function AuthShell({ title, subtitle, children }: AuthShellProps) {
         <span aria-hidden className="neon-bracket__corners" />
         <div className="mb-7 text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-ada-text">{title}</h1>
-          <p className="mt-2 text-sm text-ada-text-muted">{subtitle}</p>
+          <p className="prose-editorial mt-2 text-base text-ada-text-muted">{subtitle}</p>
         </div>
         {children}
       </div>

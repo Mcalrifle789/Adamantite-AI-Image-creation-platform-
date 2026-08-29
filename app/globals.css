@@ -25,16 +25,43 @@ body {
   background: var(--color-ada-bg);
   color: var(--color-ada-text);
   font-family: var(--font-ui);
-  font-feature-settings:
-    'cv05' 1,
-    'ss03' 1,
-    'tnum' 1;
+}
+
+/* `cv05`/`ss03` used to be set here. Those are Inter's character-variant features; neither
+ * Spline Sans nor any fallback in the stack has them, so they were doing nothing. `tnum` was
+ * also global, which is wrong for prose — tabular figures are for columns and counters, so it
+ * now lives on the mono face and on Tailwind's `tabular-nums` where it is actually wanted. */
+code,
+kbd,
+samp,
+pre,
+.font-mono {
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Headings carry the display face. Doing it here rather than tagging every `<h2>` with
+ * `font-display` means a new heading is correct by default, and the two roles cannot drift
+ * apart as pages are added. The wordmark is an `<h1>` and already asks for the same family, so
+ * this changes nothing about it. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+}
+
+/* Marketing prose and long-form copy. Slightly looser than the UI leading, because Spectral is
+ * a text serif and reads better with room. */
+.prose-editorial {
+  font-family: var(--font-editorial);
+  line-height: 1.65;
 }
 
 /* ── The wordmark — ux-patterns.md §4.2 / ADR-07, reproduced verbatim ──────────────────── */
 .ada-wordmark {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.035em;
   color: transparent;
   -webkit-text-stroke: 1.25px var(--color-ada-cyan-300);
   background-image: linear-gradient(178deg, #1b4fa8 0%, #1e90ff 46%, #0b2c63 100%);

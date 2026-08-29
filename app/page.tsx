@@ -54,7 +54,9 @@ export default function Home() {
         <header className="mb-12 mt-10 w-full text-center sm:mt-16">
           <h1 className="sr-only">Adamantite Agent</h1>
           <Wordmark size="hero" withAgent as="span" />
-          <p className="mx-auto mt-7 max-w-xl text-balance text-base text-ada-text-muted sm:text-lg">
+          {/* Spectral. The one long sentence on the page, and the only place the brand makes a
+              claim in words — a text serif carries "luxury studio" where a grotesque cannot. */}
+          <p className="prose-editorial mx-auto mt-7 max-w-xl text-balance text-lg text-ada-text-muted sm:text-xl">
             A luxury creative studio for AI image &amp; video — every leading model, one refined workspace.
           </p>
         </header>

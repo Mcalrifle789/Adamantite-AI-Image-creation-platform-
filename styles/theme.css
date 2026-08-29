@@ -58,9 +58,22 @@
   --color-ada-line-quiet:  rgb(143 163 191 / 0.10);  /* dividers          */
 
   /* ─── Type ──────────────────────────────────────────────────────── */
-  --font-display: Georgia, "Iowan Old Style", "Times New Roman", serif;
-  --font-ui:      system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono:    ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  /* Four families, four jobs — loaded and documented in `app/layout.tsx`.
+   *
+   *   display   Space Grotesk    wordmark, hero headings, plan names
+   *   ui        Spline Sans      controls, labels, nav, short strings
+   *   mono      Spline Sans Mono credits, ratios, badges, sizes, readouts
+   *   editorial Spectral         marketing prose, anything over a line
+   *
+   * Arial is the fallback in every sans stack, not a role of its own: it is metric-comparable,
+   * present on effectively every device, and therefore what paints during `display: swap`.
+   * "Arial CE" follows it for completeness — but it is a pre-Unicode codepage build of Arial and
+   * will never match on a modern system, so Central European coverage comes from the `latin-ext`
+   * subset on the webfonts above, not from this name. */
+  --font-display:   var(--font-space-grotesk), Arial, "Arial CE", Helvetica, sans-serif;
+  --font-ui:        var(--font-spline-sans), Arial, "Arial CE", Helvetica, sans-serif;
+  --font-mono:      var(--font-spline-sans-mono), ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-editorial: var(--font-spectral), Georgia, "Iowan Old Style", "Times New Roman", serif;
 
   --text-2xs:    0.6875rem;  --text-2xs--line-height: 1rem;      /* 11 — mono labels only */
   --text-xs:     0.75rem;    --text-xs--line-height:  1.125rem;  /* 12 */

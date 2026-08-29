@@ -20,7 +20,7 @@ export function EmptyState({ icon, title, body, action, className }: EmptyStateP
         </div>
       ) : null}
       <p className="text-lg font-semibold text-ada-text">{title}</p>
-      {body ? <p className="max-w-prose text-sm text-ada-text-muted">{body}</p> : null}
+      {body ? <p className="prose-editorial max-w-prose text-base text-ada-text-muted">{body}</p> : null}
       {action ? <div className="mt-1">{action}</div> : null}
     </div>
   );
