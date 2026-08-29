@@ -8,6 +8,14 @@ import { AccountMenu } from '@/components/account/AccountMenu';
 import { GridFloor } from '@/components/background/GridFloor';
 import { Wordmark } from '@/components/brand/Wordmark';
 import type { PublicModelCard } from '@/components/model/brandAssets';
+import { AttachButton } from '@/components/prompt/AttachButton';
+import { AttachmentTray } from '@/components/prompt/AttachmentTray';
+import {
+  takeStashedAttachments,
+  toHistoryAttachments,
+  type HistoryAttachment,
+} from '@/components/prompt/attachments';
+import { usePromptAttachments } from '@/components/prompt/usePromptAttachments';
 
 interface WorkspaceAppProps {
   models: PublicModelCard[];
@@ -26,6 +34,9 @@ interface Generation {
   aspect: string;
   assetPath: string;
   createdAt: number;
+  /** Thumbnails only — the full data URLs would exhaust the localStorage quota within a few
+   * generations. See `toHistoryAttachments`. */
+  attachments?: HistoryAttachment[];
 }
 
 const IMAGE_ASPECTS = ['1:1', '16:9', '9:16', '4:3', '3:4'];
@@ -64,6 +75,10 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [credits, setCredits] = useState(monthlyCredits);
   const timerRef = useRef<number | null>(null);
+  const references = usePromptAttachments({
+    onRejected: (text) => setStatus({ tone: 'error', text }),
+  });
+  const { setAttachments: setReferences } = references;
 
   const activeModel = useMemo(
     () => models.find((model) => model.id === activeModelId) ?? models[0]!,
@@ -100,6 +115,28 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
     return () => window.clearTimeout(id);
   }, []);
 
+  // References picked on the landing page arrive through sessionStorage, which is read once and
+  // cleared, so a refresh does not silently re-attach them.
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      const { intended, attachments } = takeStashedAttachments();
+      if (!attachments.length) return;
+      setReferences(attachments);
+      setStatus(
+        intended > attachments.length
+          ? {
+              tone: 'error',
+              text: `${attachments.length} of ${intended} references carried over — the rest were too large to hand off. Attach them again here.`,
+            }
+          : {
+              tone: 'info',
+              text: `${attachments.length} reference${attachments.length === 1 ? '' : 's'} carried over.`,
+            },
+      );
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [setReferences]);
+
   useEffect(() => () => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
   }, []);
@@ -126,7 +163,13 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
     }
 
     setGenerating(true);
-    setStatus({ tone: 'info', text: `Generating with ${activeModel.displayName}…` });
+    const referenceCount = references.attachments.length;
+    setStatus({
+      tone: 'info',
+      text: referenceCount
+        ? `Generating with ${activeModel.displayName} from ${referenceCount} reference${referenceCount === 1 ? '' : 's'}…`
+        : `Generating with ${activeModel.displayName}…`,
+    });
 
     timerRef.current = window.setTimeout(() => {
       const generation: Generation = {
@@ -136,8 +179,13 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
         kind: activeModel.kind,
         prompt: trimmed,
         aspect: safeAspect,
+        // Still the model's bundled preview: `config/models.ts` has every model on
+        // `providerId: 'mock'` and there is no generation route yet, so nothing has actually
+        // read the references. They are recorded on the result so that the payload is complete
+        // the moment a real provider is wired in.
         assetPath: activeModel.previewAssetPath,
         createdAt: Date.now(),
+        attachments: toHistoryAttachments(references.attachments),
       };
       const nextHistory = [generation, ...history].slice(0, 24);
       const nextCredits = credits - activeModel.priceCredits;
@@ -289,32 +337,77 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
               {current ? (
                 <p className="mt-3 line-clamp-2 text-sm text-ada-text-muted">{current.prompt}</p>
               ) : null}
+
+              {current?.attachments?.length ? (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-ada-text-muted">
+                    References ({current.attachments.length}):
+                  </span>
+                  {current.attachments.map((attachment) => (
+                    /* eslint-disable-next-line @next/next/no-img-element -- persisted data: URL */
+                    <img
+                      key={attachment.id}
+                      src={attachment.thumbUrl}
+                      alt={attachment.name}
+                      title={attachment.name}
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 rounded-md border border-[color:var(--glass-border)] object-cover"
+                    />
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
 
           {/* composer */}
           <div>
-            <div className="bevel-field h-[3.75rem]">
-              <div className="bevel-field__inner flex items-center gap-3 px-6">
-                <input
-                  value={prompt}
-                  onChange={(event) => setPrompt(event.target.value)}
-                  onKeyDown={onPromptKeyDown}
-                  placeholder="describe what you want to create..."
-                  aria-label="Prompt"
-                  autoComplete="off"
-                  className="text-base"
-                />
-                <button
-                  type="button"
-                  onClick={generate}
-                  disabled={generating}
-                  className="shrink-0 rounded-full bg-[rgb(34_211_238_/_0.16)] px-5 py-2 text-sm font-semibold text-ada-cyan-100 shadow-[0_0_18px_-4px_rgb(34_211_238_/_0.85)] transition duration-[var(--dur-2)] hover:bg-[rgb(34_211_238_/_0.26)] hover:text-white disabled:opacity-50"
-                >
-                  {generating ? 'Generating…' : 'Generate'}
-                </button>
+            {/* The drop target is the wrapper, not `.bevel-field` itself: that element's
+                `clip-path` would cut off any overlay positioned inside it. */}
+            <div className="relative" {...references.dropZoneProps}>
+              <div className="bevel-field h-[3.75rem]">
+                <div className="bevel-field__inner flex items-center gap-3 px-6">
+                  <input
+                    value={prompt}
+                    onChange={(event) => setPrompt(event.target.value)}
+                    onKeyDown={onPromptKeyDown}
+                    onPaste={references.onPaste}
+                    placeholder="describe what you want to create..."
+                    aria-label="Prompt"
+                    autoComplete="off"
+                    className="text-base"
+                  />
+                  <AttachButton
+                    onFiles={(files) => void references.addFiles(files)}
+                    count={references.attachments.length}
+                    disabled={generating}
+                  />
+                  <button
+                    type="button"
+                    onClick={generate}
+                    disabled={generating}
+                    className="shrink-0 rounded-full bg-[rgb(34_211_238_/_0.16)] px-5 py-2 text-sm font-semibold text-ada-cyan-100 shadow-[0_0_18px_-4px_rgb(34_211_238_/_0.85)] transition duration-[var(--dur-2)] hover:bg-[rgb(34_211_238_/_0.26)] hover:text-white disabled:opacity-50"
+                  >
+                    {generating ? 'Generating…' : 'Generate'}
+                  </button>
+                </div>
               </div>
+
+              {references.dragging ? (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 grid place-items-center rounded-xl border-2 border-ada-cyan-300/70 bg-[rgb(4_10_24_/_0.85)] text-sm font-medium text-ada-cyan-100"
+                >
+                  Drop images to attach as references
+                </span>
+              ) : null}
             </div>
+
+            <AttachmentTray
+              attachments={references.attachments}
+              onRemove={references.remove}
+              className="mt-3"
+            />
             {status ? (
               <p
                 role="status"

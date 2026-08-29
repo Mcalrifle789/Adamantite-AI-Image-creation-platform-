@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import type { PublicModelCard } from '@/components/model/brandAssets';
+import { AttachButton } from '@/components/prompt/AttachButton';
+import { AttachmentTray } from '@/components/prompt/AttachmentTray';
+import { stashAttachments } from '@/components/prompt/attachments';
+import { usePromptAttachments } from '@/components/prompt/usePromptAttachments';
 
 interface ModelSelectorProps {
   featuredModels: PublicModelCard[];
@@ -34,6 +38,8 @@ export function ModelSelector({ featuredModels, allModels }: ModelSelectorProps)
   const fallbackId = featuredModels[0]?.id ?? allModels[0]?.id ?? '';
   const [selectedId, setSelectedId] = useState(fallbackId);
   const [prompt, setPrompt] = useState('');
+  const [notice, setNotice] = useState<string | null>(null);
+  const references = usePromptAttachments({ onRejected: setNotice });
 
   const tiles = useMemo(() => {
     const byId = new Map(featuredModels.map((model) => [model.id, model]));
@@ -59,6 +65,9 @@ export function ModelSelector({ featuredModels, allModels }: ModelSelectorProps)
   function openWorkspace(modelId: string) {
     setSelectedId(modelId);
     window.localStorage.setItem(MODEL_STORAGE_KEY, modelId);
+    // Files cannot ride in a query string, so they go through sessionStorage. A short batch is
+    // reported on the other side rather than silently dropped — see `stashAttachments`.
+    stashAttachments(references.attachments);
     const params = new URLSearchParams({ model: modelId });
     if (prompt.trim()) params.set('prompt', prompt.trim());
     router.push(`/workspace/demo?${params.toString()}`);
@@ -76,16 +85,28 @@ export function ModelSelector({ featuredModels, allModels }: ModelSelectorProps)
         <label htmlFor="prompt" className="sr-only">
           Prompt
         </label>
-        <div className="neon-input flex items-center gap-3 px-6 py-1">
+        <div
+          {...references.dropZoneProps}
+          data-dragging={references.dragging || undefined}
+          className="neon-input relative flex items-center gap-3 px-6 py-1 data-[dragging]:border-ada-cyan-300/80 data-[dragging]:shadow-[0_0_0_2px_rgb(124_227_255_/_0.5),0_0_40px_-10px_rgb(50_170_255_/_0.7)]"
+        >
           <SparkIcon className="h-5 w-5 shrink-0 text-ada-cyan-300/80" />
           <input
             id="prompt"
             name="prompt"
             value={prompt}
             onChange={(event) => updatePrompt(event.target.value)}
+            onPaste={references.onPaste}
             placeholder="create something..."
             autoComplete="off"
             className="h-14 w-full bg-transparent text-lg text-ada-text outline-none placeholder:text-ada-cyan-300/50 sm:text-xl"
+          />
+          <AttachButton
+            onFiles={(files) => {
+              setNotice(null);
+              void references.addFiles(files);
+            }}
+            count={references.attachments.length}
           />
           <button
             type="submit"
@@ -94,7 +115,32 @@ export function ModelSelector({ featuredModels, allModels }: ModelSelectorProps)
           >
             <ArrowIcon className="h-5 w-5" />
           </button>
+
+          {references.dragging ? (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 grid place-items-center rounded-[inherit] bg-[rgb(4_10_24_/_0.82)] text-sm font-medium text-ada-cyan-100"
+            >
+              Drop images to attach
+            </span>
+          ) : null}
         </div>
+
+        <AttachmentTray
+          attachments={references.attachments}
+          onRemove={references.remove}
+          className="mt-3"
+        />
+
+        {notice ? (
+          <p role="status" className="mt-2 px-2 text-xs text-ada-warning">
+            {notice}
+          </p>
+        ) : (
+          <p className="mt-2 px-2 text-xs text-ada-text-muted">
+            Attach reference images with <span className="text-ada-cyan-200">+</span>, or drop and paste them here.
+          </p>
+        )}
       </form>
 
       {/* four premium model tiles */}
