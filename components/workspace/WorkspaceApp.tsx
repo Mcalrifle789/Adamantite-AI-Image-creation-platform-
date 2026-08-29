@@ -22,6 +22,12 @@ interface WorkspaceAppProps {
   initialModelId: string;
   initialPrompt: string;
   projectId: string;
+  /** The signed-in account. Route-guarded, so this is never absent — it scopes the per-browser
+   * mock state below so two accounts sharing a browser cannot see each other's balance. */
+  accountId: string;
+  /** e.g. "Port" — shown next to the balance so the number is explainable rather than magic. */
+  planName: string;
+  /** The account's own plan allowance, not a fixed figure. */
   monthlyCredits: number;
 }
 
@@ -47,8 +53,12 @@ const SUGGESTIONS = [
   'Rain-soaked cyberpunk alley, blue reflections',
   'Chrome orchid blooming in zero gravity',
 ];
-const GEN_KEY = 'ada.workspace.generations';
-const CREDIT_KEY = 'ada.workspace.credits';
+// Namespaced per account. Until the credits ledger and generation store land server-side
+// (T-006), both of these live in localStorage — which is shared by every account that signs in
+// on this browser. Keying by account id is what stops one person's gallery and balance from
+// showing up under someone else's sign-in.
+const genKeyFor = (accountId: string) => `ada.workspace.generations.${accountId}`;
+const creditKeyFor = (accountId: string) => `ada.workspace.credits.${accountId}`;
 
 function newId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
@@ -65,7 +75,16 @@ function timeAgo(ts: number): string {
   return `${Math.round(h / 24)}d ago`;
 }
 
-export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCredits }: WorkspaceAppProps) {
+export function WorkspaceApp({
+  models,
+  initialModelId,
+  initialPrompt,
+  accountId,
+  planName,
+  monthlyCredits,
+}: WorkspaceAppProps) {
+  const genKey = genKeyFor(accountId);
+  const creditKey = creditKeyFor(accountId);
   const [activeModelId, setActiveModelId] = useState(initialModelId);
   const [prompt, setPrompt] = useState(initialPrompt);
   const [aspect, setAspect] = useState('16:9');
@@ -98,7 +117,7 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
   useEffect(() => {
     const id = window.setTimeout(() => {
       try {
-        const savedGen = window.localStorage.getItem(GEN_KEY);
+        const savedGen = window.localStorage.getItem(genKey);
         if (savedGen) {
           const parsed = JSON.parse(savedGen) as Generation[];
           if (Array.isArray(parsed) && parsed.length) {
@@ -106,14 +125,14 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
             setCurrentId(parsed[0]!.id);
           }
         }
-        const savedCredits = window.localStorage.getItem(CREDIT_KEY);
+        const savedCredits = window.localStorage.getItem(creditKey);
         if (savedCredits && Number.isFinite(Number(savedCredits))) setCredits(Number(savedCredits));
       } catch {
         /* ignore malformed storage */
       }
     }, 0);
     return () => window.clearTimeout(id);
-  }, []);
+  }, [genKey, creditKey]);
 
   // References picked on the landing page arrive through sessionStorage, which is read once and
   // cleared, so a refresh does not silently re-attach them.
@@ -141,14 +160,17 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
     if (timerRef.current) window.clearTimeout(timerRef.current);
   }, []);
 
-  const persist = useCallback((generations: Generation[], nextCredits: number) => {
-    try {
-      window.localStorage.setItem(GEN_KEY, JSON.stringify(generations.slice(0, 24)));
-      window.localStorage.setItem(CREDIT_KEY, String(nextCredits));
-    } catch {
-      /* storage may be unavailable */
-    }
-  }, []);
+  const persist = useCallback(
+    (generations: Generation[], nextCredits: number) => {
+      try {
+        window.localStorage.setItem(genKey, JSON.stringify(generations.slice(0, 24)));
+        window.localStorage.setItem(creditKey, String(nextCredits));
+      } catch {
+        /* storage may be unavailable */
+      }
+    },
+    [genKey, creditKey],
+  );
 
   function generate() {
     if (generating) return;
@@ -229,7 +251,7 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
     setHistory([]);
     setCurrentId(null);
     try {
-      window.localStorage.removeItem(GEN_KEY);
+      window.localStorage.removeItem(genKey);
     } catch {
       /* ignore */
     }
@@ -257,7 +279,7 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
         <div className="flex items-center gap-3">
           <div className="rounded-full border border-ada-cyan-300/35 bg-[rgb(34_211_238_/_0.08)] px-4 py-2 text-sm font-medium text-ada-cyan-100 shadow-[0_0_20px_-8px_rgb(34_211_238_/_0.8)] backdrop-blur-md">
             <span className="font-mono tabular-nums">{credits.toLocaleString()}</span>
-            <span className="ml-1.5 text-ada-cyan-200/70">credits</span>
+            <span className="ml-1.5 text-ada-cyan-200/70">credits · {planName}</span>
           </div>
           <Link
             href="/pricing"

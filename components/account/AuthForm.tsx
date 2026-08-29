@@ -47,6 +47,14 @@ export function AuthForm({ mode }: AuthFormProps) {
   const rawNext = searchParams.get('next');
   const next = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
 
+  // The cross-link has to carry the destination too. A visitor bounced off the workspace lands
+  // on /signin?next=/workspace/… ; without this, clicking "Create an account" dropped `next` and
+  // dumped them on the home page after registering — which is the *common* path for a new user,
+  // not an edge case.
+  const alternateHref = `${isRegister ? '/signin' : '/register'}${
+    next === '/' ? '' : `?next=${encodeURIComponent(next)}`
+  }`;
+
   const serverErrors = fieldErrorsOf(mutation.error);
   const errors = { ...serverErrors, ...clientErrors };
 
@@ -147,7 +155,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <p className="text-center text-sm text-ada-text-muted">
         {isRegister ? 'Already have an account? ' : 'New to Adamantite? '}
         <Link
-          href={isRegister ? '/signin' : '/register'}
+          href={alternateHref}
           className="font-medium text-ada-cyan-200 underline decoration-ada-cyan-300/40 underline-offset-4 transition hover:text-ada-cyan-100"
         >
           {isRegister ? 'Sign in' : 'Create an account'}
