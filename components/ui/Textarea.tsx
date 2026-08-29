@@ -10,9 +10,9 @@ export type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>;
 const MAX_ROWS = 6;
 
 const TEXTAREA_BASE_CLASSES =
-  'w-full resize-none rounded-md border bg-ada-surface-2 border-[color:var(--color-ada-line)] px-3 py-2 text-sm text-ada-text ' +
+  'glass-field w-full resize-none rounded-md border px-3 py-2 text-sm text-ada-text ' +
   'placeholder:text-ada-text-muted transition-[border-color,box-shadow] duration-[var(--dur-1)] ease-[var(--ease-out)] ' +
-  'focus:outline-none focus-visible:border-ada-blue-500 focus-visible:shadow-[var(--glow-2)] ' +
+  'focus:outline-none ' +
   'disabled:opacity-45 disabled:cursor-not-allowed aria-[invalid=true]:border-ada-danger';
 
 /** Auto-grows up to `MAX_ROWS` (6) of text, then becomes internally scrollable — ux-patterns.md

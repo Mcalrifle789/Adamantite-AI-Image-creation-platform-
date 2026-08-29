@@ -31,7 +31,7 @@ export function Sheet({ open, onClose, title, children, className }: SheetProps)
   return createPortal(
     <div className="fixed inset-0 z-50">
       <div
-        className="absolute inset-0 bg-[color:var(--color-ada-scrim)]"
+        className="absolute inset-0 bg-[color:var(--color-ada-scrim)] backdrop-blur-[10px]"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -41,10 +41,9 @@ export function Sheet({ open, onClose, title, children, className }: SheetProps)
         aria-modal="true"
         aria-labelledby={titleId}
         className={cn(
-          'absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-lg border-t bg-ada-surface-1',
-          'border-[color:var(--color-ada-line)] shadow-[var(--glow-1)]',
+          'glass-panel absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-b-none rounded-t-2xl',
           'animate-[ada-slide-up_var(--dur-3)_var(--ease-out)]',
-          'md:inset-y-0 md:inset-x-auto md:right-0 md:bottom-auto md:h-full md:w-[400px] md:max-h-none md:rounded-t-none md:rounded-l-lg md:border-t-0 md:border-l',
+          'md:inset-y-0 md:inset-x-auto md:right-0 md:bottom-auto md:h-full md:w-[400px] md:max-h-none md:rounded-t-none md:rounded-l-2xl',
           'md:animate-[ada-slide-in-right_var(--dur-3)_var(--ease-out)]',
           className,
         )}

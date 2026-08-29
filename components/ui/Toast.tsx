@@ -93,7 +93,7 @@ function ToastItem({ record }: { record: ToastRecord }) {
       onMouseEnter={clearTimer}
       onMouseLeave={startTimer}
       className={cn(
-        'pointer-events-auto w-full max-w-sm rounded-md border bg-ada-surface-2 px-4 py-3 text-sm text-ada-text shadow-[var(--glow-1)]',
+        'glass-panel glass-sheen pointer-events-auto w-full max-w-sm rounded-lg px-4 py-3 text-sm text-ada-text',
         'animate-[ada-fade-in_var(--dur-3)_var(--ease-out)]',
         TONE_CLASSES[record.tone ?? 'neutral'],
       )}

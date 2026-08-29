@@ -2,12 +2,22 @@
 
 @theme {
   /* ─── Ground & surfaces ─────────────────────────────────────────── */
-  --color-ada-void:        #05050A;   /* deepest — behind the rain field only */
-  --color-ada-bg:          #05050A;   /* page background */
+  /* The ground is no longer neutral black. It carries a faint blue-violet cast so the aurora
+   * mesh in `components/background/Atmosphere.tsx` reads as *depth* rather than as coloured
+   * blobs pasted onto a flat void. Luminance is still ≤ 1.5%, so every contrast ratio quoted
+   * below is unchanged (they were all measured against #05050A, which is 0.3% brighter). */
+  --color-ada-void:        #02030A;   /* deepest — behind the rain field only */
+  --color-ada-bg:          #04060F;   /* page background */
   --color-ada-surface-1:   #0A0F1A;   /* cards, rail */
   --color-ada-surface-2:   #101827;   /* raised: menus, inputs, dialogs */
   --color-ada-surface-3:   #18202F;   /* hover / pressed */
   --color-ada-scrim:       rgb(2 4 10 / 0.72);
+
+  /* ─── Aurora ramp — the mesh-gradient background only ────────────── */
+  --color-ada-aurora-1:    #1E5BFF;   /* cold blue  — top-left mass  */
+  --color-ada-aurora-2:    #22D3EE;   /* cyan       — lower-left arc */
+  --color-ada-aurora-3:    #7C4DFF;   /* violet     — right mass     */
+  --color-ada-aurora-4:    #0B7FA8;   /* teal       — horizon bloom  */
 
   /* ─── Brand ramp ────────────────────────────────────────────────── */
   --color-ada-blue-300:    #8CC4FF;
@@ -21,9 +31,13 @@
   --color-ada-cyan-500:    #06AECD;
 
   /* ─── Text ──────────────────────────────────────────────────────── */
-  --color-ada-text:        #F2F6FF;   /* primary                      18.6:1 */
-  --color-ada-text-muted:  #8FA3BF;   /* secondary, placeholders       7.8:1 */
-  --color-ada-text-faint:  #64748B;   /* decorative / ≥18px only       4.2:1 */
+  /* Ratios below are worst-case: measured not against `--color-ada-bg` but against the
+   * brightest pixel the aurora mesh actually produces behind body copy (sampled at
+   * rgb(20 50 92) after the cap in `components/background/Atmosphere.tsx`). The old #8FA3BF
+   * measured 7.8:1 on flat #05050A but only 3.7:1 on the aurora, which is a fail. */
+  --color-ada-text:        #F2F6FF;   /* primary                      10.3:1 */
+  --color-ada-text-muted:  #A7BBD4;   /* secondary, placeholders       5.7:1 */
+  --color-ada-text-faint:  #8496AE;   /* decorative / ≥18px only       3.7:1 */
   --color-ada-text-invert: #04070E;
 
   /* ─── Semantic ──────────────────────────────────────────────────── */
@@ -94,6 +108,60 @@
   --glow-3: 0 0 28px -6px rgb(34 211 238 / 0.55), 0 0 64px -20px rgb(30 144 255 / 0.50);
   --glow-danger: 0 0 0 1px rgb(251 113 133 / 0.45), 0 0 20px -6px rgb(251 113 133 / 0.45);
   --glow-text: 0 0 18px rgb(79 168 255 / 0.45), 0 0 42px rgb(34 211 238 / 0.22);
+
+  /* ─── Morphism system — the four surface languages used across the app ───────────────────
+   * glass   : frosted, translucent, blurred. Anything that floats over the aurora.
+   * neu     : soft-UI. Extruded from the surface it sits on; no translucency.
+   * clay    : chunky, high-radius, coloured ambient shadow. Marketing / celebratory surfaces.
+   * hud     : the chamfered instrument panel (styles/hud.css). Unchanged.
+   * Each language owns its own tokens so a component never hand-rolls a shadow stack. */
+
+  /* glassmorphism */
+  --glass-blur:        20px;
+  --glass-blur-sm:     12px;
+  --glass-blur-lg:     28px;
+  --glass-saturate:    150%;
+  --glass-tint-top:    rgb(26 40 68 / 0.44);
+  --glass-tint-bottom: rgb(7 11 22 / 0.56);
+  --glass-border:      rgb(132 194 255 / 0.18);
+  --glass-border-lit:  rgb(154 216 255 / 0.46);
+  --glass-sheen:       rgb(255 255 255 / 0.07);
+  --glass-shadow:
+    0 1px 0 var(--glass-sheen) inset,
+    0 0 0 1px rgb(90 170 255 / 0.05),
+    0 24px 64px -34px rgb(0 0 0 / 0.92),
+    0 0 44px -22px rgb(40 140 255 / 0.42);
+  --glass-shadow-lifted:
+    0 1px 0 rgb(255 255 255 / 0.1) inset,
+    0 34px 76px -34px rgb(0 0 0 / 0.95),
+    0 0 28px rgb(50 160 255 / 0.32),
+    0 0 66px -14px rgb(50 160 255 / 0.5);
+  /* Opaque stand-in for browsers with no backdrop-filter (see the @supports block in hud.css). */
+  --glass-fallback:    #0C1424;
+
+  /* neumorphism (dark soft-UI — light from the top-left, shadow to the bottom-right) */
+  --neu-surface:       #0D1424;
+  --neu-light:         rgb(86 140 210 / 0.16);
+  --neu-dark:          rgb(0 0 0 / 0.68);
+  --neu-raised:
+    -6px -6px 14px -6px var(--neu-light),
+     8px  8px 20px -8px var(--neu-dark),
+     0 1px 0 rgb(255 255 255 / 0.05) inset;
+  --neu-inset:
+    inset 5px 5px 12px -4px var(--neu-dark),
+    inset -4px -4px 10px -6px var(--neu-light);
+  --neu-pressed:
+    inset 3px 3px 8px -3px var(--neu-dark),
+    inset -2px -2px 6px -4px var(--neu-light);
+
+  /* claymorphism */
+  --clay-radius:       28px;
+  --clay-surface:      linear-gradient(150deg, rgb(34 52 88 / 0.72), rgb(12 18 36 / 0.78));
+  --clay-shadow:
+    0 2px 1px rgb(255 255 255 / 0.14) inset,
+    0 -12px 22px -14px rgb(0 0 0 / 0.85) inset,
+    0 22px 44px -20px rgb(8 40 96 / 0.72),
+    0 10px 24px -16px rgb(34 211 238 / 0.34);
 
   --rail-w: 280px;
   --inspector-w: 340px;

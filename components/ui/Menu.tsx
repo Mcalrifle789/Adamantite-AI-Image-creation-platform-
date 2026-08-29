@@ -138,7 +138,7 @@ export function Menu({ items, align = 'start', className, children }: MenuProps)
                 transform: align === 'end' ? 'translateX(-100%)' : undefined,
               }}
               className={cn(
-                'z-50 min-w-40 rounded-md border border-[color:var(--color-ada-line)] bg-ada-surface-2 p-1 shadow-[var(--glow-1)]',
+                'glass-panel z-50 min-w-40 rounded-lg p-1',
                 className,
               )}
             >
@@ -157,7 +157,7 @@ export function Menu({ items, align = 'start', className, children }: MenuProps)
                   }}
                   className={cn(
                     'flex w-full items-center rounded-sm px-2.5 py-2 text-left text-sm outline-none transition-colors duration-[var(--dur-1)]',
-                    'text-ada-text hover:bg-ada-surface-3 focus-visible:bg-ada-surface-3',
+                    'text-ada-text hover:bg-[rgb(120_190_255_/_0.12)] focus-visible:bg-[rgb(120_190_255_/_0.16)]',
                     item.destructive && 'text-ada-danger',
                     item.disabled && 'cursor-not-allowed opacity-45',
                   )}

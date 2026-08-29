@@ -27,7 +27,7 @@ export function CatalogueExplorer({ models }: { models: PublicModelCard[] }) {
   }, [models, kind, query]);
 
   return (
-    <div className="glass-panel p-6 sm:p-8">
+    <div className="glass-panel glass-sheen p-6 sm:p-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-white">Full catalogue</h2>

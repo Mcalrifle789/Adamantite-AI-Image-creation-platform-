@@ -23,7 +23,7 @@ export default async function AccountPage() {
 
   return (
     <main className="relative min-h-screen px-5 pb-20 pt-6 text-ada-text sm:px-8 lg:px-12">
-      <nav className="mx-auto flex max-w-[64rem] items-center justify-between gap-4 py-4">
+      <nav className="glass-bar glass-sheen sticky top-4 z-30 mx-auto mt-4 flex max-w-[64rem] items-center justify-between gap-4 py-3 pl-5 pr-3">
         <Link href="/" aria-label="Adamantite Agent home" className="inline-flex items-center">
           <Wordmark size="header" withAgent={false} as="span" className="text-2xl" />
         </Link>

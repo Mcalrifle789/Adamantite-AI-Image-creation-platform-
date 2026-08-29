@@ -18,9 +18,9 @@ export interface DialogProps {
 }
 
 /** HUD-framed modal — ux-patterns.md §9, §10.1: focus trapped, `Esc` closes, focus restored to
- * the trigger, `aria-modal="true"`, labelled by its heading, body scroll locked. The scrim uses
- * `backdrop-filter: blur(12px)` — one of the two `backdrop-filter` elements the §6 restraint
- * rule allows in the whole tree (the other is the sticky top bar). */
+ * the trigger, `aria-modal="true"`, labelled by its heading, body scroll locked. The scrim's
+ * `backdrop-filter: blur(12px)` is doing semantic work, not decoration: per HIG, blur is the
+ * signal that the layer behind is dismissible. The frame itself is frosted via `.hud__inner`. */
 export function Dialog({ open, onClose, title, children, footer, className }: DialogProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleId = useId();

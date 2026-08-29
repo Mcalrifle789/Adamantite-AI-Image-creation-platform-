@@ -19,7 +19,7 @@ export interface AuthShellProps {
 export function AuthShell({ title, subtitle, children }: AuthShellProps) {
   return (
     <main className="relative flex min-h-screen flex-col items-center px-5 py-10 text-ada-text sm:px-8">
-      <header className="mb-10 flex w-full max-w-[92rem] items-center justify-between">
+      <header className="glass-bar glass-sheen mb-10 flex w-full max-w-[92rem] items-center justify-between px-5 py-3">
         <Link href="/" aria-label="Adamantite Agent home" className="inline-flex items-center">
           <Wordmark size="header" withAgent={false} as="span" className="text-2xl" />
         </Link>

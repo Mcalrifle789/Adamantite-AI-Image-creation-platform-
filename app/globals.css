@@ -66,6 +66,26 @@ body {
   100% { transform: translate3d(-6%, 4%, 0) scale(1.05); opacity: 0.7; }
 }
 
+/* The three aurora masses in `components/background/Atmosphere.tsx`. Deliberately mismatched
+ * periods (34s / 44s / 52s) so the composite never visibly loops. Transform + opacity only. */
+@keyframes ada-aurora-a {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(8%, 6%, 0) scale(1.18); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes ada-aurora-b {
+  0%   { transform: translate3d(0, 0, 0) scale(1.08); opacity: 0.55; }
+  50%  { transform: translate3d(-9%, 8%, 0) scale(0.94); opacity: 0.8; }
+  100% { transform: translate3d(0, 0, 0) scale(1.08); opacity: 0.55; }
+}
+
+@keyframes ada-aurora-c {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(10%, -7%, 0) scale(1.22); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
 /* Gentle atmospheric fog behind the whole interface. */
 @keyframes ada-fog-drift {
   0%   { transform: translate3d(-2%, 0, 0); opacity: 0.55; }

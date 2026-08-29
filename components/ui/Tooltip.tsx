@@ -83,7 +83,7 @@ export function Tooltip({ content, side = 'top', children }: TooltipProps) {
                 left: position.left,
                 transform: side === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)',
               }}
-              className="z-50 max-w-xs rounded-md border border-[color:var(--color-ada-line)] bg-ada-surface-2 px-2 py-1 text-xs text-ada-text shadow-[var(--glow-1)]"
+              className="glass-panel z-50 max-w-xs rounded-md px-2 py-1 text-xs text-ada-text"
             >
               {content}
             </div>,

@@ -44,23 +44,26 @@ const RAIN_TILE_BACKGROUND = `url("data:image/svg+xml,${RAIN_TILE_SVG}")`;
 export function RainField({ density = 'full' }: RainFieldProps) {
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      {/* No `backgroundColor` here. This layer sits at z-0, directly above `<Atmosphere />` at
+       * -z-10 — painting the opaque `--color-ada-bg` would occlude the aurora mesh entirely.
+       * The ground colour is `body`'s, which is behind both. */}
       <div
         className="absolute inset-0"
         style={{
-          backgroundColor: 'var(--color-ada-bg)',
           backgroundImage: RAIN_TILE_BACKGROUND,
           backgroundRepeat: 'repeat',
           backgroundSize: `${TILE_SIZE}px ${TILE_SIZE}px`,
         }}
       />
       {/* The vignette that keeps the effective ground within 0.5% luminance of --color-ada-bg
-       * under any text (ux-patterns.md §3.4) — this CAN use the live custom property since it's
-       * a normal inline style, not embedded in a data URI. */}
+       * under any text (ux-patterns.md §3.4). Now a *translucent* scrim rather than an opaque
+       * `--color-ada-bg` stop: it still damps the ground under body copy, but the aurora beneath
+       * survives at ~28%, which is the whole point of the layer below it. */}
       <div
         className="absolute inset-0"
         style={{
           backgroundImage:
-            'radial-gradient(120% 80% at 50% 0%, transparent 0%, var(--color-ada-bg) 78%)',
+            'radial-gradient(125% 85% at 50% 0%, transparent 0%, rgb(4 6 15 / 0.45) 82%)',
         }}
       />
       <RainCanvasLoader density={density} />

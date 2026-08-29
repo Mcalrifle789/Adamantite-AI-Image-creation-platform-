@@ -30,12 +30,14 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
       ref={ref}
       type={type}
       className={cn(
-        'inline-flex items-center justify-center rounded-md border transition-[background-color,border-color,box-shadow,color] duration-[var(--dur-1)] ease-[var(--ease-out)]',
-        'text-ada-text-muted hover:text-ada-text hover:bg-ada-surface-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ada-cyan-300',
+        // Soft-UI rather than glass: an icon button is *attached* to the bar it sits in, so it
+        // extrudes from that surface instead of floating over the aurora. `.neu-pressable`
+        // swaps the raised shadow for a pressed one on `:active` and on `aria-pressed`, with no
+        // geometry change — so there is never a layout shift on press.
+        'neu-pressable inline-flex items-center justify-center rounded-md',
+        'text-ada-text-muted hover:text-ada-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ada-cyan-300',
         'disabled:opacity-45 disabled:cursor-not-allowed',
-        active
-          ? 'bg-ada-surface-3 border-[color:var(--color-ada-line-strong)] text-ada-text shadow-[var(--glow-1)]'
-          : 'bg-transparent border-transparent',
+        active && 'border-[color:var(--color-ada-line-strong)] text-ada-text',
         SIZE_CLASSES[size],
         className,
       )}

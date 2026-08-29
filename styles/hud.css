@@ -12,8 +12,18 @@
 }
 .hud__inner {
   clip-path: inherit;
-  background: var(--color-ada-surface-1);
+  /* Frosted rather than solid, so the aurora reads through the instrument panels. The parent's
+   * `clip-path` already establishes the chamfered shape; `backdrop-filter` samples through it. */
+  background: linear-gradient(180deg, rgb(18 28 48 / 0.66), rgb(8 13 26 / 0.74));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   height: 100%;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hud__inner {
+    background: var(--color-ada-surface-1);
+  }
 }
 .hud[data-tone="active"] { --hud-line: var(--color-ada-line-strong); box-shadow: var(--glow-2); }
 .hud[data-tone="danger"] { --hud-line: rgb(251 113 133 / 0.5);       box-shadow: var(--glow-danger); }
@@ -56,35 +66,86 @@
 .neon-frame--purple:hover { box-shadow: 0 0 2px rgb(230 215 255 / 1), 0 0 18px rgb(167 139 250 / 0.7), 0 0 48px -6px rgb(167 139 250 / 0.75), inset 0 0 22px -6px rgb(150 120 245 / 0.55); }
 .neon-frame--magenta:hover{ box-shadow: 0 0 2px rgb(255 210 240 / 1), 0 0 18px rgb(244 114 182 / 0.7), 0 0 48px -6px rgb(244 114 182 / 0.75), inset 0 0 22px -6px rgb(240 120 190 / 0.55); }
 
-/* ── Premium frosted-glass surfaces ───────────────────────────────────────────────────── */
+/* ── Glassmorphism ──────────────────────────────────────────────────────────────────────
+ * One recipe, several sizes. Every frosted surface in the app routes through these tokens, so
+ * the blur radius, tint and shadow stack are changed in exactly one place (`styles/theme.css`).
+ * `.glass-panel` / `.glass-card` are the named presets the existing markup already uses;
+ * `.glass-bar`, `.glass-field`, `.glass-pill` and `.glass-sheen` are the new ones.
+ * ─────────────────────────────────────────────────────────────────────────────────── */
 .glass-panel {
   position: relative;
   border-radius: 20px;
-  background:
-    linear-gradient(180deg, rgb(20 30 52 / 0.42), rgb(8 13 26 / 0.5));
-  border: 1px solid rgb(130 195 255 / 0.16);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  background: linear-gradient(180deg, var(--glass-tint-top), var(--glass-tint-bottom));
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--glass-shadow);
+}
+
+/* The specular streak along the top edge — what separates "translucent box" from "glass".
+ * Opt-in, because the host has to own a border-radius for it to clip against. */
+.glass-sheen {
+  overflow: hidden;
+}
+.glass-sheen::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 42%;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.1), transparent 85%);
+  pointer-events: none;
+}
+
+/* Chrome that spans the viewport: nav bars, sticky headers. Blurs harder and tints less, so the
+ * aurora still reads through it. */
+.glass-bar {
+  position: relative;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(180deg, rgb(20 32 56 / 0.34), rgb(6 10 20 / 0.42));
+  border: 1px solid rgb(132 194 255 / 0.14);
+  backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturate));
   box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.06) inset,
-    0 0 0 1px rgb(90 170 255 / 0.05),
-    0 20px 60px -30px rgb(0 0 0 / 0.9),
-    0 0 40px -18px rgb(40 140 255 / 0.4);
+    0 1px 0 var(--glass-sheen) inset,
+    0 18px 44px -32px rgb(0 0 0 / 0.9);
+}
+
+/* Small frosted chip — badges, meta pills, key/value tags. */
+.glass-pill {
+  background: linear-gradient(180deg, rgb(24 38 64 / 0.5), rgb(8 13 25 / 0.58));
+  backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-saturate));
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset;
+}
+
+/* Inputs, textareas and selects. Glass on the outside, *neumorphic* on the inside: the content
+ * well is pressed into the surface, which is what makes a field read as fillable. */
+.glass-field {
+  background: linear-gradient(180deg, rgb(14 22 40 / 0.55), rgb(6 10 20 / 0.62));
+  border-color: var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-saturate));
+  box-shadow: var(--neu-inset);
+}
+.glass-field:focus,
+.glass-field:focus-within,
+.glass-field:focus-visible {
+  border-color: var(--glass-border-lit);
+  box-shadow:
+    var(--neu-inset),
+    0 0 0 1px rgb(124 227 255 / 0.35),
+    0 0 26px -10px rgb(50 170 255 / 0.65);
 }
 
 /* Refined neon selectable tile — glassy, soft border light, cinematic hover lift. */
 .glass-card {
   position: relative;
   border-radius: 22px;
-  background:
-    linear-gradient(180deg, rgb(22 32 56 / 0.46), rgb(8 12 24 / 0.52));
+  background: linear-gradient(180deg, var(--glass-tint-top), var(--glass-tint-bottom));
   border: 1px solid rgb(120 190 255 / 0.22);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.07) inset,
-    0 18px 50px -28px rgb(0 0 0 / 0.9),
-    0 0 34px -20px rgb(60 160 255 / 0.5);
+  backdrop-filter: blur(18px) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(18px) saturate(var(--glass-saturate));
+  box-shadow: var(--glass-shadow);
   transition:
     transform var(--dur-3) var(--ease-out),
     border-color var(--dur-3) var(--ease-out),
@@ -94,13 +155,96 @@
 .glass-card:hover,
 .glass-card:focus-visible {
   transform: translateY(-6px) scale(1.015);
-  border-color: rgb(150 215 255 / 0.55);
-  box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.1) inset,
-    0 30px 70px -30px rgb(0 0 0 / 0.95),
-    0 0 26px rgb(50 160 255 / 0.35),
-    0 0 60px -12px rgb(50 160 255 / 0.55);
+  border-color: var(--glass-border-lit);
+  box-shadow: var(--glass-shadow-lifted);
   outline: none;
+}
+/* The lift is a transform, never a size change, so it cannot cause layout shift — but it is
+ * still motion, so it goes away when the user asks for less of it. */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card:hover,
+  .glass-card:focus-visible {
+    transform: none;
+  }
+}
+
+/* ── Neumorphism (dark soft-UI) ──────────────────────────────────────────────────────────────
+ * For controls that must feel *attached* to their container rather than floating over the
+ * background: icon buttons, toggles, stat plinths, field wells. Opaque by design — soft-UI
+ * needs a shared surface colour to extrude from, so these deliberately never blur.
+ * ─────────────────────────────────────────────────────────────────────────────────── */
+.neu {
+  background: var(--neu-surface);
+  border: 1px solid rgb(132 194 255 / 0.08);
+  box-shadow: var(--neu-raised);
+}
+.neu-well {
+  background: var(--neu-surface);
+  border: 1px solid rgb(132 194 255 / 0.08);
+  box-shadow: var(--neu-inset);
+}
+/* Raised at rest, pressed on :active. The geometry never changes, so there is no layout shift
+ * and no jitter — only the shadow moves. */
+.neu-pressable {
+  background: var(--neu-surface);
+  border: 1px solid rgb(132 194 255 / 0.08);
+  box-shadow: var(--neu-raised);
+  transition:
+    box-shadow var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out);
+}
+.neu-pressable:hover {
+  border-color: rgb(132 194 255 / 0.2);
+  box-shadow: var(--neu-raised), 0 0 22px -12px rgb(50 170 255 / 0.6);
+}
+.neu-pressable:active,
+.neu-pressable[data-state="on"],
+.neu-pressable[aria-pressed="true"] {
+  box-shadow: var(--neu-pressed);
+}
+
+/* ── Claymorphism ──────────────────────────────────────────────────────────────────────────
+ * Chunky, generous radius, soft coloured ambient shadow, bright inner top light. Reserved for
+ * marketing and celebratory surfaces (upsell tiles, empty states) — it is deliberately louder
+ * than glass, so it is never used for dense UI.
+ * ─────────────────────────────────────────────────────────────────────────────────── */
+.clay {
+  position: relative;
+  border-radius: var(--clay-radius);
+  background: var(--clay-surface);
+  border: 1px solid rgb(150 200 255 / 0.16);
+  backdrop-filter: blur(var(--glass-blur-sm)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(140%);
+  box-shadow: var(--clay-shadow);
+  transition: box-shadow var(--dur-3) var(--ease-out);
+}
+.clay:hover {
+  box-shadow:
+    0 2px 1px rgb(255 255 255 / 0.18) inset,
+    0 -12px 22px -14px rgb(0 0 0 / 0.85) inset,
+    0 28px 52px -20px rgb(8 40 96 / 0.8),
+    0 14px 30px -16px rgb(34 211 238 / 0.45);
+}
+
+/* ── No-backdrop-filter fallback ──────────────────────────────────────────────────────────────
+ * A browser with `backdrop-filter` unavailable or disabled renders these as a ~45%-opaque tint
+ * over a moving aurora, which is exactly where dark-mode text becomes unreadable. Fall back to
+ * an opaque surface rather than a transparent one.
+ * ─────────────────────────────────────────────────────────────────────────────────── */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-panel,
+  .glass-card,
+  .glass-bar,
+  .glass-pill,
+  .glass-field,
+  .clay,
+  .neon-input,
+  .neon-frame,
+  .neon-bracket,
+  .bevel-field__inner {
+    background: var(--glass-fallback);
+  }
 }
 
 /* ── Neon pill input — the "create something…" / "ask anything…" fields ────────────────── */

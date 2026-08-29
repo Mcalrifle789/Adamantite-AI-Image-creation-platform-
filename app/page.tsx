@@ -23,7 +23,9 @@ export default function Home() {
   return (
     <main className="relative min-h-screen overflow-x-hidden px-5 pb-20 text-ada-text sm:px-8 lg:px-12">
       {/* ── Top navigation ─────────────────────────────────────────────── */}
-      <nav className="mx-auto flex max-w-[92rem] items-center justify-between gap-4 py-6">
+      {/* Sticky frosted chrome. `top-4` + the pill radius makes it read as a floating bar over
+          the aurora rather than a band welded to the viewport edge. */}
+      <nav className="glass-bar glass-sheen sticky top-4 z-30 mx-auto mt-4 flex max-w-[92rem] items-center justify-between gap-4 py-3 pl-5 pr-3">
         <Link href="/" aria-label="Adamantite Agent home" className="inline-flex items-center">
           <Wordmark size="header" withAgent={false} as="span" className="text-2xl" />
         </Link>

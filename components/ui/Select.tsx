@@ -46,9 +46,9 @@ export function Select<T extends string = string>({
           {...trigger}
           {...rest}
           className={cn(
-            'flex h-10 w-full items-center justify-between rounded-md border bg-ada-surface-2 border-[color:var(--color-ada-line)] px-3 text-sm text-ada-text',
+            'glass-field flex h-10 w-full items-center justify-between rounded-md border px-3 text-sm text-ada-text',
             'transition-[border-color,box-shadow] duration-[var(--dur-1)] ease-[var(--ease-out)]',
-            'focus:outline-none focus-visible:border-ada-blue-500 focus-visible:shadow-[var(--glow-2)]',
+            'focus:outline-none',
             className,
           )}
         >

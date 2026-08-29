@@ -19,7 +19,11 @@ const CYAN_400 = '34 211 238';
 const MAX_FPS = 60;
 const FRAME_BUDGET_MS = 1000 / MAX_FPS;
 const MAX_SQUARES_PER_COLUMN = 16;
-const TRAIL_FILL = 'rgb(5 5 10 / 0.16)';
+// How much of each frame's alpha is erased to produce the falling trails. Applied with
+// `destination-out` (see `draw`) rather than as an opaque wash — painting a dark fill over the
+// canvas every frame would, within a second, turn it into a solid sheet and occlude the aurora
+// mesh that `<Atmosphere />` renders below it.
+const TRAIL_FADE = 0.16;
 const BACKING_SCALE_CAP = 1.5;
 
 interface Square {
@@ -129,8 +133,12 @@ export default function RainCanvas({ density = 'full' }: RainCanvasProps) {
       const dtSeconds = lastDrawTime === 0 ? 1 / MAX_FPS : elapsed / 1000;
       lastDrawTime = now;
 
-      ctx!.fillStyle = TRAIL_FILL;
+      // Fade what is already on the canvas by erasing alpha, so the canvas stays transparent and
+      // the background shows through between the drops.
+      ctx!.globalCompositeOperation = 'destination-out';
+      ctx!.fillStyle = `rgb(0 0 0 / ${TRAIL_FADE})`;
       ctx!.fillRect(0, 0, width, height);
+      ctx!.globalCompositeOperation = 'source-over';
 
       for (let columnIndex = 0; columnIndex < columnState.length; columnIndex += 1) {
         const squares = columnState[columnIndex];

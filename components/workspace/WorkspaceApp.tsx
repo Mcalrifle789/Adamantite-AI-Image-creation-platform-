@@ -202,7 +202,7 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
     <main className="relative min-h-screen px-4 py-6 text-ada-text sm:px-8 lg:px-12">
       <GridFloor />
 
-      <header className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+      <header className="glass-bar glass-sheen relative z-10 flex flex-wrap items-center justify-between gap-4 px-5 py-3">
         <Link href="/" aria-label="Adamantite home" className="inline-flex">
           <Wordmark size="hero" withAgent as="span" className="!text-[clamp(2.4rem,5vw,4rem)]" />
         </Link>
