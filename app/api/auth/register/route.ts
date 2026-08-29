@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { registerAccount, toAccountSession } from '@/lib/server/auth/accounts';
+import { AuthConfigurationError } from '@/lib/server/auth/authEnv';
 import { setSessionCookie } from '@/lib/server/auth/session';
 import { EmailTakenError } from '@/lib/server/auth/types';
 import { apiError, apiOk, readJsonBody, zodDetails } from '@/lib/server/http/respond';
@@ -25,6 +26,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       return apiError(409, 'EMAIL_TAKEN', 'An account with that email already exists.', {
         fieldErrors: { email: 'That email is already registered. Sign in instead.' },
       });
+    }
+    if (error instanceof AuthConfigurationError) {
+      return apiError(503, 'AUTH_NOT_CONFIGURED', error.message);
     }
     console.error('[adamantite/auth] register failed', error);
     return apiError(500, 'INTERNAL_ERROR', 'We could not create your account. Please try again.');

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { getReadyAccountStore } from '@/lib/server/auth/accountStore';
 import { getCurrentAccount, toAccountSession } from '@/lib/server/auth/accounts';
+import { AuthConfigurationError } from '@/lib/server/auth/authEnv';
 import { hashPassword, verifyPassword } from '@/lib/server/auth/password';
 import { setSessionCookie } from '@/lib/server/auth/session';
 import { EmailTakenError, type UpdateAccountPatch } from '@/lib/server/auth/types';
@@ -64,6 +65,9 @@ export async function PATCH(request: Request): Promise<NextResponse> {
       return apiError(409, 'EMAIL_TAKEN', 'That email is already in use.', {
         fieldErrors: { email: 'That email is already in use by another account.' },
       });
+    }
+    if (error instanceof AuthConfigurationError) {
+      return apiError(503, 'AUTH_NOT_CONFIGURED', error.message);
     }
     console.error('[adamantite/auth] account update failed', error);
     return apiError(500, 'INTERNAL_ERROR', 'We could not save your changes.');

@@ -23,6 +23,13 @@ const authEnvSchema = z.object({
 
 export type AuthEnv = z.infer<typeof authEnvSchema>;
 
+export class AuthConfigurationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthConfigurationError';
+  }
+}
+
 export function loadAuthEnv(): AuthEnv {
   const parsed = authEnvSchema.safeParse(process.env);
   return parsed.success ? parsed.data : ({} as AuthEnv);
@@ -36,7 +43,7 @@ export function loadAuthEnv(): AuthEnv {
 export function requireAuthSecret(): string {
   const { AUTH_SECRET } = loadAuthEnv();
   if (!AUTH_SECRET) {
-    throw new Error(
+    throw new AuthConfigurationError(
       'AUTH_SECRET is not set. Generate one with `openssl rand -hex 32` and add it to your ' +
         'environment (Vercel → Settings → Environment Variables) before using accounts.',
     );

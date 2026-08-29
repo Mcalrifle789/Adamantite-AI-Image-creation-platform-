@@ -26,6 +26,10 @@ const globalForPool = globalThis as unknown as { __adamantitePgPool?: Pool };
 function getPool(connectionString: string): Pool {
   if (!globalForPool.__adamantitePgPool) {
     const { DATABASE_SSL_NO_VERIFY } = loadAuthEnv();
+    const useRelaxedSsl =
+      DATABASE_SSL_NO_VERIFY === '1' ||
+      /(?:^|[?&])sslmode=require(?:&|$)/i.test(connectionString) ||
+      /\.neon\.tech(?::|\/|$)/i.test(connectionString);
     globalForPool.__adamantitePgPool = new Pool({
       connectionString,
       max: 3,
@@ -33,10 +37,7 @@ function getPool(connectionString: string): Pool {
       connectionTimeoutMillis: 10_000,
       // Hosted Postgres is TLS-only; several providers present certs that Node's default CA
       // bundle rejects. Opt into relaxed verification explicitly rather than silently.
-      ssl:
-        DATABASE_SSL_NO_VERIFY === '1' || /sslmode=require/.test(connectionString)
-          ? { rejectUnauthorized: false }
-          : undefined,
+      ssl: useRelaxedSsl ? { rejectUnauthorized: false } : undefined,
     });
   }
   return globalForPool.__adamantitePgPool;

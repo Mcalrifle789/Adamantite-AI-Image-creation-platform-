@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { authenticate, toAccountSession } from '@/lib/server/auth/accounts';
+import { AuthConfigurationError } from '@/lib/server/auth/authEnv';
 import { setSessionCookie } from '@/lib/server/auth/session';
 import { apiError, apiOk, readJsonBody, zodDetails } from '@/lib/server/http/respond';
 import { loginSchema } from '@/lib/shared/auth-schemas';
@@ -27,6 +28,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     await setSessionCookie(row.id, row.token_version);
     return apiOk(toAccountSession(row));
   } catch (error) {
+    if (error instanceof AuthConfigurationError) {
+      return apiError(503, 'AUTH_NOT_CONFIGURED', error.message);
+    }
     console.error('[adamantite/auth] login failed', error);
     return apiError(500, 'INTERNAL_ERROR', 'We could not sign you in. Please try again.');
   }

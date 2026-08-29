@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { isProduction, loadAuthEnv } from './authEnv';
+import { AuthConfigurationError, isProduction, loadAuthEnv } from './authEnv';
 import { createJsonAccountStore } from './stores/jsonAccountStore';
 import { createPostgresAccountStore } from './stores/postgresAccountStore';
 import type { AccountStore } from './types';
@@ -17,7 +17,6 @@ import type { AccountStore } from './types';
  */
 const globalForAccountStore = globalThis as unknown as {
   __adamantiteAccountStore?: AccountStore;
-  __adamantiteAccountStoreWarned?: boolean;
 };
 
 export function getAccountStore(): AccountStore {
@@ -27,12 +26,10 @@ export function getAccountStore(): AccountStore {
     if (DATABASE_URL) {
       globalForAccountStore.__adamantiteAccountStore = createPostgresAccountStore(DATABASE_URL);
     } else {
-      if (isProduction() && !globalForAccountStore.__adamantiteAccountStoreWarned) {
-        globalForAccountStore.__adamantiteAccountStoreWarned = true;
-        console.warn(
-          '[adamantite/auth] DATABASE_URL is not set. Accounts are falling back to the JSON file ' +
-            'store, which CANNOT persist on Vercel (read-only, per-invocation filesystem). ' +
-            'Attach a Postgres database and set DATABASE_URL to make sign-up durable.',
+      if (isProduction()) {
+        throw new AuthConfigurationError(
+          'DATABASE_URL is not set. Add your Neon Postgres connection string in Vercel ' +
+            'Project Settings → Environment Variables before using sign in or registration.',
         );
       }
       globalForAccountStore.__adamantiteAccountStore = createJsonAccountStore();
