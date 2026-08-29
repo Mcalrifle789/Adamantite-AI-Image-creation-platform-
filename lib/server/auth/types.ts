@@ -2,6 +2,8 @@ import 'server-only';
 
 import type { PlanId } from '../../shared/api-types';
 
+export type AccountRole = 'owner' | 'user';
+
 /**
  * The account record, as the auth layer sees it. A superset of `UserRow` in
  * `lib/server/db/schema.ts` — that row was written for the M1 demo user, which had no
@@ -15,6 +17,7 @@ export interface AccountRow {
   email: string;
   password_hash: string;
   plan_id: PlanId;
+  role: AccountRole;
   token_version: number;
   created_at: string;
   updated_at: string;
@@ -28,6 +31,7 @@ export interface CreateAccountInput {
   email: string;
   passwordHash: string;
   planId: PlanId;
+  role?: AccountRole;
   createdAt: string;
 }
 
@@ -36,6 +40,7 @@ export interface UpdateAccountPatch {
   email?: string;
   password_hash?: string;
   plan_id?: PlanId;
+  role?: AccountRole;
   token_version?: number;
   last_login_at?: string;
 }
@@ -49,6 +54,7 @@ export interface AccountStore {
   init(): Promise<void>;
   findById(id: string): Promise<AccountRow | null>;
   findByEmail(email: string): Promise<AccountRow | null>;
+  list(): Promise<AccountRow[]>;
   create(input: CreateAccountInput): Promise<AccountRow>;
   update(id: string, patch: UpdateAccountPatch): Promise<AccountRow>;
   /** Identifies the backing store in diagnostics and in the dev-only persistence warning. */

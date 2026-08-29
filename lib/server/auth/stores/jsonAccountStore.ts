@@ -82,6 +82,10 @@ export function createJsonAccountStore(dataDir?: string): AccountStore {
       return rows.find((row) => row.email.toLowerCase() === needle) ?? null;
     },
 
+    async list() {
+      return readAll();
+    },
+
     create(input: CreateAccountInput) {
       return enqueue(async () => {
         const rows = await readAll();
@@ -94,6 +98,7 @@ export function createJsonAccountStore(dataDir?: string): AccountStore {
           email: input.email,
           password_hash: input.passwordHash,
           plan_id: input.planId,
+          role: input.role ?? 'user',
           token_version: 1,
           created_at: input.createdAt,
           updated_at: input.createdAt,

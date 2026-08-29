@@ -50,11 +50,14 @@ const CREATE_TABLE_SQL = `
     email          TEXT        NOT NULL,
     password_hash  TEXT        NOT NULL,
     plan_id        TEXT        NOT NULL DEFAULT 'port',
+    role           TEXT        NOT NULL DEFAULT 'user',
     token_version  INTEGER     NOT NULL DEFAULT 1,
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     last_login_at  TIMESTAMPTZ
   );
+  ALTER TABLE ada_accounts ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'user';
+  UPDATE ada_accounts SET role = 'owner' WHERE lower(email) = 'mgeorgepalasch@gmail.com';
   CREATE UNIQUE INDEX IF NOT EXISTS ada_accounts_email_key ON ada_accounts (lower(email));
 `;
 
@@ -69,6 +72,7 @@ interface RawRow {
   email: string;
   password_hash: string;
   plan_id: string;
+  role: string;
   token_version: number;
   created_at: Date | string;
   updated_at: Date | string;
@@ -87,6 +91,7 @@ function mapRow(row: RawRow): AccountRow {
     email: row.email,
     password_hash: row.password_hash,
     plan_id: row.plan_id as AccountRow['plan_id'],
+    role: row.role === 'owner' ? 'owner' : 'user',
     token_version: Number(row.token_version),
     created_at: toIso(row.created_at)!,
     updated_at: toIso(row.updated_at)!,
@@ -95,7 +100,7 @@ function mapRow(row: RawRow): AccountRow {
 }
 
 const COLUMNS =
-  'id, display_name, email, password_hash, plan_id, token_version, created_at, updated_at, last_login_at';
+  'id, display_name, email, password_hash, plan_id, role, token_version, created_at, updated_at, last_login_at';
 
 export function createPostgresAccountStore(connectionString: string): AccountStore {
   const pool = getPool(connectionString);
@@ -127,13 +132,28 @@ export function createPostgresAccountStore(connectionString: string): AccountSto
       return result.rows[0] ? mapRow(result.rows[0]) : null;
     },
 
+    async list() {
+      const result = await pool.query<RawRow>(
+        `SELECT ${COLUMNS} FROM ada_accounts ORDER BY created_at DESC`,
+      );
+      return result.rows.map(mapRow);
+    },
+
     async create(input) {
       try {
         const result = await pool.query<RawRow>(
-          `INSERT INTO ada_accounts (id, display_name, email, password_hash, plan_id, token_version, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, 1, $6, $6)
+          `INSERT INTO ada_accounts (id, display_name, email, password_hash, plan_id, role, token_version, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, 1, $7, $7)
            RETURNING ${COLUMNS}`,
-          [input.id, input.displayName, input.email, input.passwordHash, input.planId, input.createdAt],
+          [
+            input.id,
+            input.displayName,
+            input.email,
+            input.passwordHash,
+            input.planId,
+            input.role ?? 'user',
+            input.createdAt,
+          ],
         );
         return mapRow(result.rows[0]!);
       } catch (error) {

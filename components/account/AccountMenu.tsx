@@ -143,6 +143,11 @@ export function AccountMenu({ className, showName = true }: AccountMenuProps) {
           </div>
 
           <div className="p-1.5">
+            {account.role === 'owner' ? (
+              <MenuLink href="/owner" onNavigate={close}>
+                Owner dashboard
+              </MenuLink>
+            ) : null}
             <MenuLink href="/account" onNavigate={close}>
               Account settings
             </MenuLink>

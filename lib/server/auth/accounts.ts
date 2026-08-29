@@ -1,12 +1,12 @@
 import 'server-only';
 
 import { PLANS } from '../../../config/plans';
-import type { AccountProfile, AccountSession } from '../../shared/api-types';
+import type { AccountProfile, AccountSession, OwnerAnalytics } from '../../shared/api-types';
 import { newId } from '../../shared/ids';
 import { getReadyAccountStore } from './accountStore';
 import { hashPassword, needsRehash, verifyPassword } from './password';
 import { readSessionPayload } from './session';
-import { EmailTakenError, type AccountRow } from './types';
+import { EmailTakenError, type AccountRole, type AccountRow } from './types';
 
 /**
  * The account service — the only module route handlers talk to. Everything below deals in
@@ -15,6 +15,15 @@ import { EmailTakenError, type AccountRow } from './types';
 
 /** Every new account starts on the entry plan; upgrading is Stripe's job (`/pricing`). */
 const DEFAULT_PLAN_ID = 'port' as const;
+export const OWNER_EMAIL = 'mgeorgepalasch@gmail.com';
+
+export function roleForEmail(email: string): AccountRole {
+  return email.trim().toLowerCase() === OWNER_EMAIL ? 'owner' : 'user';
+}
+
+export function isOwnerAccount(row: AccountRow): boolean {
+  return row.role === 'owner' || row.email.toLowerCase() === OWNER_EMAIL;
+}
 
 /** "Ada Lovelace" -> "AL"; "mike" -> "MI". Always two characters, always upper-case. */
 export function deriveInitials(displayName: string, email: string): string {
@@ -32,6 +41,7 @@ export function toAccountProfile(row: AccountRow): AccountProfile {
     displayName: row.display_name,
     email: row.email,
     planId: row.plan_id,
+    role: isOwnerAccount(row) ? 'owner' : 'user',
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
     initials: deriveInitials(row.display_name, row.email),
@@ -69,6 +79,7 @@ export async function registerAccount(input: {
     email: input.email,
     passwordHash: await hashPassword(input.password),
     planId: DEFAULT_PLAN_ID,
+    role: roleForEmail(input.email),
     createdAt: new Date().toISOString(),
   });
 }
@@ -122,4 +133,34 @@ export async function getCurrentAccount(): Promise<AccountRow | null> {
   if (row.token_version !== payload.ver) return null;
 
   return row;
+}
+
+export async function getOwnerAnalytics(owner: AccountRow): Promise<OwnerAnalytics> {
+  if (!isOwnerAccount(owner)) {
+    throw new Error('Only the owner can view site analytics.');
+  }
+
+  const rows = await (await getReadyAccountStore()).list();
+  const accounts = rows
+    .map(toAccountProfile)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const now = Date.now();
+  const dayAgo = now - 24 * 60 * 60 * 1000;
+  const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
+  const signedInAt = (row: AccountRow) =>
+    row.last_login_at ? new Date(row.last_login_at).getTime() : Number.NEGATIVE_INFINITY;
+
+  return {
+    totalAccounts: accounts.length,
+    ownerEmail: OWNER_EMAIL,
+    ownerPresent: rows.some(isOwnerAccount),
+    signInsLast24h: rows.filter((row) => signedInAt(row) >= dayAgo).length,
+    signInsLast7d: rows.filter((row) => signedInAt(row) >= weekAgo).length,
+    recentAccounts: accounts.slice(0, 25),
+    recentSignIns: rows
+      .filter((row) => row.last_login_at)
+      .sort((a, b) => signedInAt(b) - signedInAt(a))
+      .slice(0, 25)
+      .map(toAccountProfile),
+  };
 }

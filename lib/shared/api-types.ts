@@ -192,6 +192,7 @@ export interface AccountProfile {
   displayName: string;
   email: string;
   planId: PlanId;
+  role: 'owner' | 'user';
   createdAt: string;
   lastLoginAt: string | null;
   /** Two-letter monogram for the header avatar, derived server-side so it never disagrees. */
@@ -208,4 +209,14 @@ export interface AccountSession {
     monthlyCredits: number;
     accent: PlanAccent;
   };
+}
+
+export interface OwnerAnalytics {
+  totalAccounts: number;
+  ownerEmail: string;
+  ownerPresent: boolean;
+  signInsLast24h: number;
+  signInsLast7d: number;
+  recentAccounts: AccountProfile[];
+  recentSignIns: AccountProfile[];
 }
