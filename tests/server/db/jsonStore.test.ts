@@ -6,7 +6,7 @@ import path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { JsonStore } from '../../../lib/server/db/jsonStore';
+import { DEFAULT_DATA_DIR, JsonStore, resolveDataDir } from '../../../lib/server/db/jsonStore';
 
 interface Row {
   id: string;
@@ -24,6 +24,11 @@ afterEach(async () => {
 });
 
 describe('JsonStore', () => {
+  it('defaults local JSON persistence to the Adamantite database directory', () => {
+    expect(DEFAULT_DATA_DIR).toBe('E:\\Adamantite\\Database');
+    expect(resolveDataDir()).toBe(path.resolve('E:\\Adamantite\\Database'));
+  });
+
   it('read returns an empty array when the table file does not exist yet', async () => {
     const store = new JsonStore(dataDir);
     await expect(store.read<Row>('users')).resolves.toEqual([]);

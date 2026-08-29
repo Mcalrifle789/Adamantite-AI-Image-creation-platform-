@@ -5,6 +5,7 @@
  */
 
 export * from './api-types';
+export * from './auth-schemas';
 export * from './constants';
 export * from './format';
 export * from './ids';

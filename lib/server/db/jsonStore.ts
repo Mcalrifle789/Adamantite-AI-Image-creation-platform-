@@ -8,11 +8,10 @@ import type { TableName } from './schema';
 import { TABLE_FILE_NAMES, type Store, type TableFile } from './store';
 
 /**
- * data-model.md §1: default data directory, relative to the process working directory, override
- * with `ADAMANTITE_DATA_DIR` (read once through `lib/server/env.ts` — never `process.env`
- * directly, architecture.md §9).
+ * data-model.md §1: default data directory, override with `ADAMANTITE_DATA_DIR` (read once
+ * through `lib/server/env.ts` — never `process.env` directly, architecture.md §9).
  */
-export const DEFAULT_DATA_DIR = '.data';
+export const DEFAULT_DATA_DIR = 'E:\\Adamantite\\Database';
 
 /** The exact resolution `JsonStore`'s constructor applies, exported so callers that need to
  * act on the data directory directly (e.g. `seed.ts --reset` wiping it) resolve the identical

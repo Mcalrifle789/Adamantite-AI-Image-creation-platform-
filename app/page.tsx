@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { MODELS } from '@/config/models';
+import { AccountMenu } from '@/components/account/AccountMenu';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { CatalogueExplorer } from '@/components/landing/CatalogueExplorer';
 import { ModelSelector } from '@/components/landing/ModelSelector';
@@ -40,13 +41,9 @@ export default function Home() {
           >
             Pricing
           </Link>
-          <Link
-            href="/pricing"
-            className="group inline-flex items-center gap-2 rounded-full border border-ada-cyan-300/45 bg-[rgb(34_211_238_/_0.08)] px-5 py-2 text-sm font-semibold text-ada-cyan-100 shadow-[0_0_24px_-8px_rgb(34_211_238_/_0.9)] backdrop-blur-md transition duration-[var(--dur-2)] ease-[var(--ease-out)] hover:-translate-y-0.5 hover:border-ada-cyan-300/70 hover:bg-[rgb(34_211_238_/_0.16)] hover:shadow-[0_0_34px_-6px_rgb(34_211_238_/_0.95)]"
-          >
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-ada-cyan-300 shadow-[0_0_10px_2px_rgb(34_211_238_/_0.9)]" />
-            Upgrade
-          </Link>
+          {/* The identity control replaces the old always-visible "Upgrade" pill: signed out it
+              offers Sign in / Create account, signed in it becomes the profile menu. */}
+          <AccountMenu />
         </div>
       </nav>
 

@@ -178,3 +178,34 @@ export interface CreditLedgerEntry {
   periodStart: string;
   createdAt: string;
 }
+
+/**
+ * The signed-in account, as `GET /api/session` returns it. Distinct from {@link User} above:
+ * `User` is the frozen M1 contract shape (whose `email` is nullable for the demo user), while
+ * this is what the account system actually stores — a real, always-present email plus the
+ * profile fields the account panel renders.
+ *
+ * `passwordHash` is never part of this shape. Nothing that leaves the server carries it.
+ */
+export interface AccountProfile {
+  id: string;
+  displayName: string;
+  email: string;
+  planId: PlanId;
+  createdAt: string;
+  lastLoginAt: string | null;
+  /** Two-letter monogram for the header avatar, derived server-side so it never disagrees. */
+  initials: string;
+}
+
+/** `GET /api/session` — 200 when signed in, 401 when not (api-contract.md §3.1). */
+export interface AccountSession {
+  account: AccountProfile;
+  plan: {
+    id: PlanId;
+    name: string;
+    priceCents: number;
+    monthlyCredits: number;
+    accent: PlanAccent;
+  };
+}

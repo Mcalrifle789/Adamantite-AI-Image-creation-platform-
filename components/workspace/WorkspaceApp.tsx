@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { AccountMenu } from '@/components/account/AccountMenu';
 import { GridFloor } from '@/components/background/GridFloor';
 import { Wordmark } from '@/components/brand/Wordmark';
 import type { PublicModelCard } from '@/components/model/brandAssets';
@@ -216,6 +217,8 @@ export function WorkspaceApp({ models, initialModelId, initialPrompt, monthlyCre
           >
             Upgrade
           </Link>
+          {/* `showName={false}`: the credit pill already owns the horizontal budget here. */}
+          <AccountMenu showName={false} />
         </div>
       </header>
 

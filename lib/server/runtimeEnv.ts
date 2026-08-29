@@ -11,7 +11,7 @@ const envSchema = z.object({
   /** Signs and verifies the `ada_session` cookie (HMAC). No default — required. */
   AUTH_SECRET: z.string().min(1, 'AUTH_SECRET is required'),
 
-  /** Overrides the JSON-file data directory. Default (applied by lib/server/db): `.data`. */
+  /** Overrides the JSON-file data directory. Default: `E:\Adamantite\Database`. */
   ADAMANTITE_DATA_DIR: z.string().min(1).optional(),
 
   /** The shared upstream model-provider API key. Unset in M1 — the mock adapter does not need it. */

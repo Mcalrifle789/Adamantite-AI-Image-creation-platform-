@@ -2,7 +2,11 @@
 .agents/
 .claude/agent-memory/
 
-# Runtime JSON persistence (ADR-01) — generated, per-machine, never committed
+# Runtime JSON persistence (ADR-01) — generated, per-machine, never committed.
+# The real Windows default is E:\Adamantite\Database (outside the repo); these repo-local paths
+# are kept for anyone whose ADAMANTITE_DATA_DIR points here. The local account store writes
+# password hashes into accounts.json, so local fallback directories must not be missed.
+.data/
 data/
 
 # Node / Next.js

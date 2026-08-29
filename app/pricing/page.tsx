@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { ORDERED_PLAN_IDS, PLANS } from '@/config/plans';
+import { AccountMenu } from '@/components/account/AccountMenu';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { PricingCards, type PricingPlan } from '@/components/billing/PricingCards';
 
@@ -32,12 +33,15 @@ export default function PricingPage() {
           <Link href="/" aria-label="Adamantite home" className="inline-flex">
             <Wordmark size="hero" withAgent as="span" className="!text-[clamp(3rem,7vw,6rem)]" />
           </Link>
-          <Link
-            href="/"
-            className="mt-4 text-2xl text-ada-text underline decoration-white/40 underline-offset-8 drop-shadow-[0_0_14px_rgb(255_255_255_/_0.45)] transition duration-[var(--dur-3)] hover:text-ada-cyan-300"
-          >
-            Go back
-          </Link>
+          <div className="mt-4 flex items-center gap-5">
+            <Link
+              href="/"
+              className="text-2xl text-ada-text underline decoration-white/40 underline-offset-8 drop-shadow-[0_0_14px_rgb(255_255_255_/_0.45)] transition duration-[var(--dur-3)] hover:text-ada-cyan-300"
+            >
+              Go back
+            </Link>
+            <AccountMenu showName={false} />
+          </div>
         </header>
 
         <PricingCards plans={plans} />

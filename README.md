@@ -27,6 +27,8 @@ MFA on the Vercel and Stripe accounts that can deploy or manage payments.
 Set these in Vercel before enabling real checkout:
 
 - `AUTH_SECRET`: required by the server environment layer; use a long random value.
+- `DATABASE_URL`: Neon Postgres connection string for durable accounts, for example `postgresql://user:password@ep-...neon.tech/neondb?sslmode=require`.
+- `ADAMANTITE_DATA_DIR`: optional local JSON fallback location; defaults to `E:\Adamantite\Database`.
 - `ADAMANTITE_PROVIDER_API_KEY`: optional for the current mock milestone; later this should be the shared provider key that funds all model adapters.
 - `STRIPE_SECRET_KEY`: Stripe secret key for Checkout Sessions.
 - `STRIPE_WEBHOOK_SECRET`: signing secret for the `/api/stripe/webhook` endpoint.
