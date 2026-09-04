@@ -152,7 +152,7 @@ export function ModelSelector({ featuredModels, allModels }: ModelSelectorProps)
               <button
                 type="button"
                 onClick={() => openWorkspace(model.id)}
-                className="glass-card group flex w-full flex-col gap-4 p-4 text-left focus-visible:outline-none"
+                className="glass-card group flex w-full flex-col gap-4 p-4 text-left transition duration-[var(--dur-2)] ease-[var(--ease-out)] hover:-translate-y-1.5 hover:shadow-[var(--glass-shadow-lifted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ada-cyan-300 active:translate-y-0"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-lg font-semibold tracking-tight text-white">

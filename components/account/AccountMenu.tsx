@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 import { useAccountSession, useLogout } from '@/lib/client/queries/account';
 import { cn } from '@/components/ui/utils';
@@ -99,9 +99,12 @@ export function AccountMenu({ className, showName = true }: AccountMenuProps) {
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
         className={cn(
-          'inline-flex items-center gap-2 rounded-full border border-white/12 bg-[rgb(16_24_39_/_0.42)] p-1 backdrop-blur-md',
+          'inline-flex items-center gap-2 rounded-full border p-1 backdrop-blur-md',
           'transition duration-[var(--dur-2)] ease-[var(--ease-out)] hover:border-ada-cyan-300/50',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ada-cyan-300',
+          open
+            ? 'border-ada-cyan-300/60 bg-[rgb(20_34_58_/_0.55)] shadow-[0_0_22px_-4px_rgb(34_211_238_/_0.65)]'
+            : 'border-white/12 bg-[rgb(16_24_39_/_0.42)]',
           showName && 'sm:pr-3',
         )}
       >
@@ -111,6 +114,16 @@ export function AccountMenu({ className, showName = true }: AccountMenuProps) {
             {account.displayName}
           </span>
         ) : null}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 12 12"
+          className={cn(
+            'mr-1.5 h-3 w-3 shrink-0 text-ada-text-muted transition-transform duration-[var(--dur-2)] ease-[var(--ease-spring)]',
+            open && 'rotate-180 text-ada-cyan-300',
+          )}
+        >
+          <path d="M2.5 4.5 L6 8 L9.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
         <span className="sr-only">Open account menu</span>
       </button>
 
@@ -120,7 +133,7 @@ export function AccountMenu({ className, showName = true }: AccountMenuProps) {
           id={panelId}
           role="menu"
           aria-label="Account"
-          className="absolute right-0 z-50 mt-2 w-72 origin-top-right overflow-hidden rounded-[var(--radius-lg)] border border-[color:var(--color-ada-line-strong)] bg-[rgb(9_14_24_/_0.94)] shadow-[0_24px_60px_-24px_rgb(0_0_0_/_0.9)] backdrop-blur-xl"
+          className="ada-menu absolute right-0 z-50 mt-2 w-72 overflow-hidden rounded-[var(--radius-lg)] border border-[color:var(--color-ada-line-strong)] bg-[rgb(9_14_24_/_0.94)] shadow-[0_24px_60px_-24px_rgb(0_0_0_/_0.9)] backdrop-blur-xl"
         >
           <div className="flex items-start gap-3 border-b border-white/10 p-4">
             <AccountAvatar
@@ -144,14 +157,14 @@ export function AccountMenu({ className, showName = true }: AccountMenuProps) {
 
           <div className="p-1.5">
             {account.role === 'owner' ? (
-              <MenuLink href="/owner" onNavigate={close}>
+              <MenuLink href="/owner" onNavigate={close} index={0}>
                 Owner dashboard
               </MenuLink>
             ) : null}
-            <MenuLink href="/account" onNavigate={close}>
+            <MenuLink href="/account" onNavigate={close} index={1}>
               Account settings
             </MenuLink>
-            <MenuLink href="/pricing" onNavigate={close}>
+            <MenuLink href="/pricing" onNavigate={close} index={2}>
               Plans and billing
             </MenuLink>
           </div>
@@ -162,7 +175,8 @@ export function AccountMenu({ className, showName = true }: AccountMenuProps) {
               role="menuitem"
               onClick={signOut}
               disabled={logout.isPending}
-              className="w-full rounded-md px-3 py-2 text-left text-sm text-ada-danger transition hover:bg-[rgb(251_113_133_/_0.1)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ada-cyan-300 disabled:opacity-50"
+              className="ada-menu__item w-full rounded-md px-3 py-2 text-left text-sm text-ada-danger transition hover:bg-[rgb(251_113_133_/_0.1)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ada-cyan-300 disabled:opacity-50"
+              style={{ '--i': 3 } as CSSProperties}
             >
               {logout.isPending ? 'Signing out...' : 'Sign out'}
             </button>
@@ -195,10 +209,13 @@ function SignedOutLinks({ className }: { className?: string }) {
 function MenuLink({
   href,
   onNavigate,
+  index,
   children,
 }: {
   href: string;
   onNavigate: () => void;
+  /** Stagger position for the menu's enter choreography (see `.ada-menu__item`). */
+  index: number;
   children: ReactNode;
 }) {
   return (
@@ -206,7 +223,8 @@ function MenuLink({
       href={href}
       role="menuitem"
       onClick={onNavigate}
-      className="block rounded-md px-3 py-2 text-sm text-ada-text-muted transition hover:bg-white/10 hover:text-ada-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ada-cyan-300"
+      className="ada-menu__item block rounded-md px-3 py-2 text-sm text-ada-text-muted transition hover:bg-white/10 hover:text-ada-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ada-cyan-300"
+      style={{ '--i': index } as CSSProperties}
     >
       {children}
     </Link>
