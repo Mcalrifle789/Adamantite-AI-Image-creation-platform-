@@ -10,9 +10,12 @@ export interface WordmarkProps {
   className?: string;
 }
 
-// ux-patterns.md §4.2 / ADR-07: real, selectable text — never a raster or a reproduced mosaic.
-// `-webkit-text-stroke` + `background-clip: text` are non-standard-but-universally-supported;
-// `@supports not` falls back to a solid fill, no stroke, so the lockup still reads correctly.
+// ux-patterns.md §4.2 / ADR-07: real, selectable text — and, since 2026-09-04 (user direction),
+// the landing *hero* title is the revisioned logo raster instead (`components/brand/LogoHero.tsx`).
+// This component remains the typographic lockup for the header nav and auth pages, where a
+// raster at 24px would be unreadable. `-webkit-text-stroke` + `background-clip: text` are
+// non-standard-but-universally-supported; `@supports not` falls back to a solid fill, no
+// stroke, so the lockup still reads correctly.
 const SIZE_CLASSES: Record<WordmarkSize, string> = {
   hero: 'text-[clamp(3rem,11vw,8.5rem)] leading-[0.92] tracking-[-0.02em]',
   header: 'text-2xl leading-none tracking-[-0.01em]',

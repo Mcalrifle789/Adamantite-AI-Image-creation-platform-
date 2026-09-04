@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { MODELS } from '@/config/models';
 import { AccountMenu } from '@/components/account/AccountMenu';
+import { LogoHero } from '@/components/brand/LogoHero';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { CatalogueExplorer } from '@/components/landing/CatalogueExplorer';
 import { ModelSelector } from '@/components/landing/ModelSelector';
@@ -53,7 +54,9 @@ export default function Home() {
       <section className="mx-auto flex max-w-[92rem] flex-col items-center">
         <header className="mb-12 mt-10 w-full text-center sm:mt-16">
           <h1 className="sr-only">Adamantite Agent</h1>
-          <Wordmark size="hero" withAgent as="span" />
+          {/* The title is the revisioned logo art, luminance-keyed onto the aurora. The
+              typographic Wordmark below stays for the header nav; see LogoHero. */}
+          <LogoHero />
           {/* Spectral. The one long sentence on the page, and the only place the brand makes a
               claim in words — a text serif carries "luxury studio" where a grotesque cannot. */}
           <p className="prose-editorial mx-auto mt-7 max-w-xl text-balance text-lg text-ada-text-muted sm:text-xl">

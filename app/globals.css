@@ -79,6 +79,37 @@ h3 {
   }
 }
 
+/* ── Hero logo art - the revisioned lockup raster (scripts/build_brand_lockup.py) ─────
+ * The asset is pre-masked (luminance-keyed alpha, black already removed). What remains
+ * here is edge dissolution + neon reconnect: a radial mask fades the crop edges so the
+ * falling rain melts into the page, and a cyan drop-shadow glow ties the art to the
+ * site's neon language. The glow breathe is motion-gated. */
+.ada-logo-hero {
+  display: inline-block;
+  line-height: 0;
+}
+
+.ada-logo-hero img {
+  width: clamp(19rem, 52vw + 4rem, 52rem);
+  height: auto;
+  -webkit-mask-image: radial-gradient(118% 102% at 50% 46%, #000 58%, transparent 97%);
+  mask-image: radial-gradient(118% 102% at 50% 46%, #000 58%, transparent 97%);
+  filter:
+    drop-shadow(0 0 18px rgb(30 144 255 / 0.38))
+    drop-shadow(0 0 56px rgb(30 144 255 / 0.2));
+}
+
+@keyframes ada-logo-breathe {
+  0%, 100% { filter: drop-shadow(0 0 18px rgb(30 144 255 / 0.38)) drop-shadow(0 0 56px rgb(30 144 255 / 0.2)); }
+  50%      { filter: drop-shadow(0 0 26px rgb(30 144 255 / 0.52)) drop-shadow(0 0 76px rgb(30 144 255 / 0.28)); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ada-logo-hero img {
+    animation: ada-logo-breathe 7s ease-in-out infinite;
+  }
+}
+
 /* ── Keyframes shared by components/ui and components/background ──────────────────────── */
 @keyframes ada-spin {
   to {
